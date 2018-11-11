@@ -2,22 +2,17 @@
 # has debug, logfile, container, prefix and suffix
 [ "${debug}" = "true" ] && set -x
 
-SOLR=7.5.0
 
-. $(dirname $0)/java
-
-[ "${suffix}" = "model" ] && echo add solr to model - this will take some time && (
+[ "${suffix}" = "model" ] && echo add python to model - this should be quick && (
 ( 
 cat << EOF
 [ "${debug}" = "true" ] && set -x
-apt-get --quiet install -y curl wget
-wget http://apache.40b.nl/lucene/solr/${SOLR}/solr-${SOLR}-src.tgz
-tar -zxvf solr-${SOLR}-src.tgz
+apt-get --quiet install -y python3 python3-setuptools python-venv
 EOF
 ) | sudo lxc shell  ${container} >>${logfile} 2>&1
 ) >> ${logfile} 2>&1
 
-[ ! "${suffix}" = "model" ] && echo initialize solr && (
+[ ! "${suffix}" = "model" ] && echo initialize python && (
 ( 
 cat << EOF
 [ "${debug}" = "true" ] && set -x
