@@ -1,0 +1,25 @@
+#!/bin/bash
+# has debug, logfile, container, prefix and suffix
+[ "${debug}" = "true" ] && set -x
+
+
+[ "${suffix}" = "model" ] && echo add metasploit to model && (
+( 
+cat << EOF
+[ "${debug}" = "true" ] && set -x
+curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && \
+  chmod 755 msfinstall &&  bash -x ./msfinstall
+  msfupdate
+EOF
+) | sudo lxc shell  ${container} >${logfile} 2>&1
+) >> ${logfile} 2>&1
+
+[ ! "${suffix}" = "model" ] && echo initializing metasploit && (
+( 
+cat << EOF
+[ "${debug}" = "true" ] && set -x
+sudo su -l -c'/opt/metasploit-framework/bin/msfdb init' ubuntu
+
+EOF
+) | sudo lxc shell  ${container} >${logfile} 2>&1
+) >> ${logfile} 2>&1
