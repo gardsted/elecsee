@@ -1,12 +1,14 @@
 #!/bin/bash
 
+# see README.md
+LINUX=ubuntu:18.04
 
 # 'lxc-linux lxcu-model' will create a stopped linux container to use as model
 # 'lxc-linux lxcu-mine' will copy lxcu-model to the lxcu-mine instance
 #     you can now ssh ubuntu@lxcu-mine
 # 
-# if the script 'scripts/lxcu' exists, it will be called with container name 
-#  after container creation
+# if the script 'scripts/lxcu' exists, it will be called after container creation
+#    continuing the same environment from this
 #
 # All these containeres will be entered into to /etc/hosts
 
@@ -34,7 +36,7 @@ fi
     sudo lxc start  ${container}
 ) >> ${logfile} 2>&1 || (
     sudo lxc delete -f ${container}
-    sudo lxc launch ubuntu:18.04  ${container}
+    sudo lxc launch ${LINUX}  ${container}
     sudo lxc config set ${container} boot.autostart false
     sudo lxc stop ${container}
     sudo lxc start ${container}
@@ -89,7 +91,7 @@ done
 ) >> ${logfile} 2>&1
 
 
-[ -f $(dirname $0)/scripts/${prefix} ] && $(dirname $0)/scripts/${prefix}
+[ -f $(dirname $0)/scripts/${prefix} ] && bash $(dirname $0)/scripts/${prefix}
 
 # stop it if we are recreating the model
 

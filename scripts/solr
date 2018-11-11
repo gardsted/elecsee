@@ -1,0 +1,31 @@
+#!/bin/bash
+# has debug, logfile, container, prefix and suffix
+[ "${debug}" = "true" ] && set -x
+
+SOLR=7.5.0
+
+[ "${suffix}" = "model" ] && echo add java + solr to model - this will take some time && (
+( 
+cat << EOF
+[ "${debug}" = "true" ] && set -x
+add-apt-repository ppa:webupd8team/java
+apt-get update
+echo debconf shared/accepted-oracle-license-v1-1 select true | \
+  sudo debconf-set-selections
+echo debconf shared/accepted-oracle-license-v1-1 seen true | \
+  sudo debconf-set-selections
+apt-get --quiet install -y oracle-java8-installer curl wget
+wget http://apache.40b.nl/lucene/solr/${SOLR}/solr-${SOLR}-src.tgz
+tar -zxvf solr-${SOLR}-src.tgz
+EOF
+) | sudo lxc shell  ${container} >>${logfile} 2>&1
+) >> ${logfile} 2>&1
+
+[ ! "${suffix}" = "model" ] && echo initialize solr && (
+( 
+cat << EOF
+[ "${debug}" = "true" ] && set -x
+
+EOF
+) | sudo lxc shell  ${container} >>${logfile} 2>&1
+) >> ${logfile} 2>&1
