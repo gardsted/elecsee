@@ -1,0 +1,28 @@
+#!/bin/bash
+[ -f "${ELECSEE_ENV}" ] && . ${ELECSEE_ENV} || . $(dirname $0)/elecsee-settings.sh
+
+ELECSEE=$(readlink -f $0)
+CMD=$1 ; shift
+ARGSPEC=${_ARGSPEC[$CMD]}
+ARGMIN=$(echo "${ARGSPEC}" | wc -w)
+
+
+( if [ "${ARGSPEC}" = "${ARGSPEC%\[\]}" ]; then
+    # fixed args
+    echo $* | while read ${ARGSPEC} THEREST
+    do
+        [[ $# -ge ${ARGMIN} ]] || exit 1
+        [ -n "${THEREST}" ] && exit 2
+        export ${ARGSPEC} ELECSEE
+        ${elecsee_commands}/elecsee-${CMD}
+    done
+else
+    # varargs
+    echo $* | while read ${ARGSPEC%\[\]}
+    do
+        [[ $# -ge ${ARGMIN} ]] || exit 3
+        export ${ARGSPEC} ELECSEE
+        ${elecsee_commands}/elecsee-${CMD}
+    done
+fi ) || echo ${_ERRSPEC[$?]}
+
