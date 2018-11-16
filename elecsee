@@ -1,11 +1,40 @@
 #!/bin/bash
-[ -f "${ELECSEE_ENV}" ] && . ${ELECSEE_ENV} || . $(dirname $0)/elecsee-settings.sh
-
-ELECSEE=$(readlink -f $0)
 CMD=$1 ; shift
-ARGSPEC=${_ARGSPEC[$CMD]}
-ARGMIN=$(echo "${ARGSPEC}" | wc -w)
+export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
 
+[ ! "$debug" = "true" ] && [[ $- == *x* ]] && debug=true || debug=false
+[ "${debug}" = "true" ] && logfile=/dev/stdout || logfile=/dev/null
+export logfile debug
+
+declare -A _ARGSPEC=(
+    # only 3 letter subcommands - onn :-)
+    [run]="" # run a server used for sequencing names, exposures etc.
+    [nur]="COMMAND[]" # nur is the client communicating with run - see elecsee-nur for commands
+    [onn]="CONTAINERS[]" # lxc-start CONTAINERS[] - uses [net] to ensure they are up - returns/errs after max 10 secs
+    [off]="CONTAINERS[]" # lxc stop CONTAINERS[]
+    [del]="CONTAINERS[]" # lxc-destroy etc CONTAINERS[]
+    [new]="CONTAINERS[]" # lxc-create / lxc-copy CONTAINERS[]
+    [net]="CONTAINERS[]" # ping until network is up in all CONTAINERS[]
+    [ucm]="COMMAND CONTAINERS[]" # 'command' using ssh as user
+    [rcm]="COMMAND CONTAINERS[]" # 'command' using lxc-attach as root
+    [lst]="" # lxc-ls --fancy -Fname,ipv4
+    [xfr]="SOURCE DESTFILE CONTAINERS[]" # file into container (using lxc-attach as root)
+    [rcv]="SOURCE TOPFOLDER CONTAINERS[]" # file from each container (using lxc-attach as root) destination is same file in folder named after container under topfolder
+)
+
+export ARGSPEC=${_ARGSPEC[$CMD]}
+export ELECSEE=$(readlink -f $0)
+export ARGMIN=$(echo "${ARGSPEC}" | wc -w)
+export elecsee_commands=$(dirname $0)/elecsee-commands
+export RUNSOCKET=/tmp/elecsee-run-socket
+
+declare -A _ERRSPEC=(
+    # error explanations
+    [0]=''
+    [1]="too few arguments, call like $ELECSEE $CMD $ARGSPEC"
+    [2]="excess arguments, call like $ELECSEE $CMD $ARGSPEC"
+)
+export _ERRSPEC
 
 ( if [ "${ARGSPEC}" = "${ARGSPEC%\[\]}" ]; then
     # fixed args
@@ -20,8 +49,8 @@ else
     # varargs
     echo $* | while read ${ARGSPEC%\[\]}
     do
-        [[ $# -ge ${ARGMIN} ]] || exit 3
-        export ${ARGSPEC} ELECSEE
+        [[ $# -ge ${ARGMIN} ]] || exit 1
+        export ${ARGSPEC%\[\]} ELECSEE
         ${elecsee_commands}/elecsee-${CMD}
     done
 fi ) || echo ${_ERRSPEC[$?]}
