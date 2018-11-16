@@ -1,0 +1,57 @@
+#!/bin/bash
+[ "${debug}" = "true" ] && set -x
+CMD=${COMMAND%% *}
+declare -A _NURSPEC=(
+    # only 4 letter subcommands
+    [expo]="CONTAINER INTERNAL EXTERNAL" # expose internal on external using socat
+    [opxe]="CONTAINER EXTERNAL" # remove container exposure from external
+    [auto]="CONTAINERS[]" # set container to start automatically using systemctl
+    [otua]="CONTAINERS[]" # remove container from autostart
+    [hsts]="" # rewrite hosts, signal dnsmasq
+)
+export _NURSPEC
+export ARGSPEC=${_NURSPEC[$CMD]}
+export ARGMIN=$(echo "${ARGSPEC}" | wc -w)
+export ARGLEN=$(echo "${COMMAND}" | wc -w)
+
+
+function hsts(){
+    echo hsts 
+}
+
+function otua(){
+    echo otua $CONTAINERS
+}
+
+function auto(){
+    echo auto $CONTAINERS
+}
+
+function opxe(){
+    echo opxe $CONTAINER $EXTERNAL 
+}
+
+function expo(){
+    echo expo $CONTAINER $INTERNAL $EXTERNAL
+}
+
+
+( if [ "${ARGSPEC}" = "${ARGSPEC%\[\]}" ]; then
+    # fixed args
+    echo ${COMMAND#* } | while read ${ARGSPEC} THEREST
+    do
+        [[ ${ARGLEN} -gt ${ARGMIN} ]] || exit 1
+        [ -n "${THEREST}" ] && exit 2
+        export ${ARGSPEC} ELECSEE
+        ${CMD}
+    done
+else
+    # varargs
+    echo ${COMMAND#* } | while read ${ARGSPEC%\[\]}
+    do
+        [[ ${ARGLEN} -gt ${ARGMIN} ]] || exit 1
+        export ${ARGSPEC%\[\]} ELECSEE
+        ${CMD}
+    done
+fi ) || echo ${_ERRSPEC[$?]}
+
