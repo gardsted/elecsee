@@ -1,29 +1,32 @@
 #!/bin/bash
-# has debug, logfile, container, prefix and suffix
-[ "${debug}" = "true" ] && set -x
-
 SOLR=7.5.0
 
-. $(dirname $0)/java
+/bin/bash $(dirname $0)/java
 
-[ "${suffix}" = "model" ] && echo add solr to model - this will take some time && (
-( 
-cat << EOF
+
+function model(){
+echo add java 8 to model - this will take some time
+(cat << EOF
 [ "${debug}" = "true" ] && set -x
 apt-get --quiet install -y curl wget
 wget http://apache.40b.nl/lucene/solr/${SOLR}/solr-${SOLR}-src.tgz
 tar -zxvf solr-${SOLR}-src.tgz
 EOF
-) | sudo lxc shell  ${container} >>${logfile} 2>&1
-) >> ${logfile} 2>&1
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
 
-[ ! "${suffix}" = "model" ] && echo initialize solr && (
-( 
-cat << EOF
+
+
+
+function instance(){
+(cat << EOF
 [ "${debug}" = "true" ] && set -x
 
 EOF
-) | sudo lxc shell  ${container} >>${logfile} 2>&1
-) >> ${logfile} 2>&1
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
 
 
+
+
+$CONTEXT

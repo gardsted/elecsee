@@ -1,0 +1,21 @@
+#!/bin/bash
+
+function net(){
+(
+cat << EOF
+(
+    echo wait for container to start > /dev/stderr
+    while true
+    do
+        ping -c 1 ubuntu.com && break
+        sleep 1
+    done 
+)
+EOF
+) | sudo lxc-attach --name ${CONTAINER}
+}
+
+for CONTAINER in ${CONTAINERS}
+do
+    net
+done

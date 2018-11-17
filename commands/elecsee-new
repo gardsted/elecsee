@@ -1,0 +1,39 @@
+#!/bin/bash
+[ "${debug}" = "true" ] && set -x
+
+function model(){
+    export CONTAINER=${PREFIX}-model
+    lxc-destroy -f ${CONTAINER}
+    lxc-create --name ${CONTAINER} -t download -- ${LINUX} 
+    lxc-start --name ${CONTAINER}
+    ${ELECSEE} net ${CONTAINER}
+    ${ELECSEE} cmr 'apt get install ssh' ${CONTAINER}
+    ${ELECSEE} uso ${CONTAINER}
+    ${ELECSEE} uss ${CONTAINER}
+    CONTEXT=model /bin/bash ${ELECSEE_SCRIPTS}/${PREFIX}
+}
+
+function instance(){
+    lxc-stop --name ${PREFIX}-model
+    lxc-destroy -f --name ${CONTAINER}
+    lxc-copy --name ${PREFIX}-model --newname ${CONTAINER}
+    lxc-start --name ${CONTAINER}
+    ${ELECSEE} net ${CONTAINER}
+    ${ELECSEE} nur hsts
+}
+
+
+for CONTAINER in ${CONTAINERS}
+do
+    export CONTAINER
+    export SUFFIX=${CONTAINER##*-}
+    export PREFIX=${CONTAINER%-${SUFFIX}}
+    ${ELECSEE} lst | grep '^'${PREFIX}-model' ' || (model)
+    (instance)
+    CONTEXT=instance /bin/bash ${ELECSEE_SCRIPTS}/${PREFIX}
+done
+
+# transfer public key to all containers
+# remove stale keys from known_hosts
+# make ssh and accept this host
+

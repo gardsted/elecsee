@@ -1,22 +1,32 @@
 #!/bin/bash
 [ "${debug}" = "true" ] && set -x
 CMD=${COMMAND%% *}
+HOSTS=/etc/hosts
 declare -A _NURSPEC=(
     # only 4 letter subcommands
     [expo]="CONTAINER INTERNAL EXTERNAL" # expose internal on external using socat
     [opxe]="CONTAINER EXTERNAL" # remove container exposure from external
     [auto]="CONTAINERS[]" # set container to start automatically using systemctl
     [otua]="CONTAINERS[]" # remove container from autostart
-    [hsts]="" # rewrite hosts, signal dnsmasq
+    [hsts]='' # rewrite hosts, signal dnsmasq
 )
 export _NURSPEC
 export ARGSPEC=${_NURSPEC[$CMD]}
 export ARGMIN=$(echo "${ARGSPEC}" | wc -w)
 export ARGLEN=$(echo "${COMMAND}" | wc -w)
 
+function hstsbase(){
+    echo "# ${HOSTS}.base, initially copied from ${HOSTS} by ${ELECSEE}" > ${HOSTS}.base
+    cat ${HOSTS} >> ${HOSTS}.base
+}
 
 function hsts(){
-    echo hsts 
+    set -e
+    [ ! -f "${HOSTS}".base ] && (hstsbase)
+    echo "# ${HOSTS} generated from ${HOSTS}.base by ${ELECSEE}" > ${HOSTS}.elecsee
+    ${ELECSEE} lst | grep -v ' - ' | awk '{print $2 "\t" $1}' >> ${HOSTS}.elecsee
+    cat ${HOSTS}.base >> ${HOSTS}.elecsee
+    mv ${HOSTS}.elecsee ${HOSTS}
 }
 
 function otua(){
@@ -38,18 +48,18 @@ function expo(){
 
 ( if [ "${ARGSPEC}" = "${ARGSPEC%\[\]}" ]; then
     # fixed args
-    echo ${COMMAND#* } | while read ${ARGSPEC} THEREST
+    echo ${COMMAND} | while read CMD ${ARGSPEC} THEREST
     do
-        [[ ${ARGLEN} -gt ${ARGMIN} ]] || exit 1
-        [ -n "${THEREST}" ] && exit 2
+        [[ ${ARGLEN} -gt ${ARGMIN} ]] || exit 101
+        [ -n "${THEREST}" ] && exit 102
         export ${ARGSPEC} ELECSEE
         ${CMD}
     done
 else
     # varargs
-    echo ${COMMAND#* } | while read ${ARGSPEC%\[\]}
+    echo ${COMMAND} | while read CMD ${ARGSPEC%\[\]}
     do
-        [[ ${ARGLEN} -gt ${ARGMIN} ]] || exit 1
+        [[ ${ARGLEN} -gt ${ARGMIN} ]] || exit 101
         export ${ARGSPEC%\[\]} ELECSEE
         ${CMD}
     done
