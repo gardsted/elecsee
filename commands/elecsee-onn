@@ -1,4 +1,8 @@
 #!/bin/bash
 [ "${debug}" = "true" ] && set -x
 
-sudo lxc-start --name ${CONTAINER}
+for CONTAINER in ${CONTAINERS}
+do
+    SUFFIX=${CONTAINER##*-}
+    [ ! "${SUFFIX}" = "model" ] && lxc-start ${CONTAINER}
+done

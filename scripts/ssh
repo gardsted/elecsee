@@ -32,15 +32,16 @@ cat ~/.ssh/elecsee.pub | lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat 
 
 
 function instance(){
+su -l -c "ssh-keygen -f ~/.ssh/known_hosts -R ${CONTAINER}" $ME >> ${logfile} 2>&1
+su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USS@${CONTAINER} :" $ME >> ${logfile} 2>&1
+su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USO@${CONTAINER} :" $ME >> ${logfile} 2>&1
+
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
 echo ${CONTAINER} > /etc/hostname
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 
-su -l -c "ssh-keygen -f ~/.ssh/known_hosts -R ${CONTAINER}" $ME
-su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USS@${CONTAINER} :" $ME
-su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USO@${CONTAINER} :" $ME
 }
 
 

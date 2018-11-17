@@ -12,7 +12,7 @@ cat << EOF
     done 
 )
 EOF
-) | sudo lxc-attach --name ${CONTAINER}
+) | sudo lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 for CONTAINER in ${CONTAINERS}

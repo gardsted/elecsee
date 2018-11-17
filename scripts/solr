@@ -4,13 +4,39 @@ SOLR=7.5.0
 /bin/bash $(dirname $0)/java
 
 
+function autostart-solr(){
+(cat << EOF
+[Unit]
+Description=${USO}s Solr
+
+[Service]
+User=$USO
+Type=simple
+ExecStart=/home/$USO/solr-${SOLR}/bin/solr start -f 
+
+[Install]
+WantedBy=multi-user.target
+EOF
+) | lxc-attach --name ${CONTAINER} /bin/sh -- -c "/bin/cat >> /etc/systemd/system/solr.service" 
+(cat << EOF
+systemctl enable solr.service
+systemctl start solr.service
+systemctl status solr.service
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
 function model(){
-echo add java 8 to model - this will take some time
+echo add solr-${SOLR} to model - this will take some time
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
 apt-get --quiet install -y curl wget
-wget http://apache.40b.nl/lucene/solr/${SOLR}/solr-${SOLR}-src.tgz
-tar -zxvf solr-${SOLR}-src.tgz
+wget http://apache.40b.nl/lucene/solr/${SOLR}/solr-${SOLR}.tgz 
+chown $USO:$USO solr-${SOLR}.tgz
+mv solr-${SOLR}.tgz /home/$USO
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
@@ -21,9 +47,15 @@ EOF
 function instance(){
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
-
+apt-get --quiet install -y lsof
+su -l -c 'tar -zxvf solr-${SOLR}.tgz' $USO
+su -l -c 'rm solr-${SOLR}.tgz' $USO
+su -l -c 'solr-${SOLR}/bin/solr start' $USO
+su -l -c 'solr-${SOLR}/bin/solr create -c default' $USO
+su -l -c 'solr-${SOLR}/bin/solr stop' $USO
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+(autostart-solr)
 }
 
 

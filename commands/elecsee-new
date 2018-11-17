@@ -4,7 +4,7 @@
 function model(){
     export CONTAINER=${PREFIX}-model
     lxc-destroy -f ${CONTAINER}
-    lxc-create --name ${CONTAINER} -t download -- ${LINUX} 
+    lxc-create --name ${CONTAINER} -t download -- ${LINUX}  >> ${logfile} 2>&1
     lxc-start --name ${CONTAINER}
     ${ELECSEE} net ${CONTAINER}
     CONTEXT=model /bin/bash ${ELECSEE_SCRIPTS}/ssh
@@ -26,8 +26,12 @@ do
     export CONTAINER
     export SUFFIX=${CONTAINER##*-}
     export PREFIX=${CONTAINER%-${SUFFIX}}
-    ${ELECSEE} lst | grep '^'${PREFIX}-model' ' || (model)
-    (instance)
+    ${ELECSEE} lst | grep '^'${PREFIX}-model' ' >> ${logfile} 2>&1 || (
+        echo building model
+        (model)
+    )
+    echo building ${CONTAINER}
+    (instance >> ${logfile} 2>&1)
     CONTEXT=instance /bin/bash ${ELECSEE_SCRIPTS}/ssh
     CONTEXT=instance /bin/bash ${ELECSEE_SCRIPTS}/${PREFIX}
     lxc-stop --name ${CONTAINER}
