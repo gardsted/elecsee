@@ -15,19 +15,13 @@ declare -A _ARGSPEC=(
     # only 3 letter subcommands - onn :-)
     [new]="CONTAINERS[]" # lxc-create / lxc-copy CONTAINERS[]
     [net]="CONTAINERS[]" # ping until network is up in all CONTAINERS[]
-    [run]="" # run a server used for sequencing names, exposures etc.
     [nur]="COMMAND[]" # nur is the client communicating with run - see elecsee-nur for commands
     [onn]="CONTAINERS[]" # lxc-start CONTAINERS[] - uses [net] to ensure they are up - returns/errs after max 10 secs
     [off]="CONTAINERS[]" # lxc stop CONTAINERS[]
     [del]="CONTAINERS[]" # lxc-destroy etc CONTAINERS[]
-    [cmu]="COMMAND CONTAINERS[]" # 'command' using ssh as user
-    [cmr]="COMMAND CONTAINERS[]" # 'command' using lxc-attach as root
     [lst]="" # lxc-ls --fancy -Fname,ipv4
     [xfr]="SOURCE DESTFILE CONTAINERS[]" # file into container (using lxc-attach as root)
     [rcv]="SOURCE TOPFOLDER CONTAINERS[]" # file from each container (using lxc-attach as root) destination is same file in folder named after container under topfolder
-    [usc]="" # create certificate (if missing) for talking to the containers through ssh: will be elecsee / elecsee.pub in Your $HOME/.ssh
-    [uso]="CONTAINERS[]" # create ordinary user with no sudo rights in CONTAINERS[] (if missing) and install elecsee.pub unconditionally
-    [uss]="CONTAINERS[]" # create user with password-less sudo rights in CONTAINERS[] (if missing) and install elecsee.pub unconditionally
 )
 
 export ARGSPEC=${_ARGSPEC[$CMD]}

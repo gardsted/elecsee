@@ -1,2 +1,0 @@
-#!/bin/bash
-[ "${debug}" = "true" ] && set -x

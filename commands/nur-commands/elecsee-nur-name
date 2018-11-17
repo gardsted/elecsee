@@ -1,4 +1,0 @@
-#!/bin/bash
-[ "${debug}" = "true" ] && set -x
-
-sudo lxc-start --name ${CONTAINER}

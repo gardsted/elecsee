@@ -1,0 +1,50 @@
+#!/bin/bash
+
+
+function elecsee-cert(){
+    su -l -c 'ssh-keygen -b 2048 -t rsa -C elecsee -f ~/.ssh/elecsee' $ME
+}
+
+function model(){
+echo add ssh, users \($USS and $USO\) and public certificates to model
+[ -f ~/.ssh/elecsee.pub ] || (elecsee-cert)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+apt update
+apt install -y ssh openssh-server
+adduser $USS --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
+adduser $USO --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
+#mkdir -p /home/$USS /home/$USO
+#chown -R $USS:$USS /home/$USS 
+#chown -R $USO:$USO /home/$USO
+su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa' $USS 
+su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa' $USO
+echo $USS' ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+
+cat ~/.ssh/elecsee.pub | lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USO'/.ssh/authorized_keys' 
+cat ~/.ssh/elecsee.pub | lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USS'/.ssh/authorized_keys'
+
+}
+
+
+
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+echo ${CONTAINER} > /etc/hostname
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+
+su -l -c "ssh-keygen -f ~/.ssh/known_hosts -R ${CONTAINER}" $ME
+su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USS@${CONTAINER} :" $ME
+su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USO@${CONTAINER} :" $ME
+}
+
+
+
+
+
+$CONTEXT

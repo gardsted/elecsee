@@ -1,8 +1,0 @@
-#!/bin/bash
-[ "${debug}" = "true" ] && set -x
-mkfifo ${RUNSOCKET}
-while read < ${RUNSOCKET}
-do
-    echo ${REPLY}
-done
-
