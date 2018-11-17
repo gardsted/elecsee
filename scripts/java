@@ -3,25 +3,31 @@
 [ "${debug}" = "true" ] && set -x
 
 
-[ "${suffix}" = "model" ] && echo add java 8 to model - this will take some time && (
-( 
-cat << EOF
+function model(){
+echo add java 8 to model - this will take some time
+(cat << EOF
 [ "${debug}" = "true" ] && set -x
-add-apt-repository ppa:webupd8team/java
-apt-get update
+apt-get -y install software-properties-common
+add-apt-repository -y ppa:webupd8team/java
+apt-get update -y
 echo debconf shared/accepted-oracle-license-v1-1 select true | \
   sudo debconf-set-selections
 echo debconf shared/accepted-oracle-license-v1-1 seen true | \
   sudo debconf-set-selections
 apt-get --quiet install -y oracle-java8-installer 
 EOF
-) | sudo lxc shell  ${container} >>${logfile} 2>&1
-) >> ${logfile} 2>&1
+) | sudo lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
 
-[ ! "${suffix}" = "model" ] && echo initialize java && (
-( 
-cat << EOF
+
+
+
+function instance(){
 :
-EOF
-) | sudo lxc shell  ${container} >>${logfile} 2>&1
-) >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT
+

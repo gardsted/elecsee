@@ -1,2 +1,0 @@
-#!/bin/bash
-sudo lxc-ls --fancy -Fname,ipv4 > /dev/stdout

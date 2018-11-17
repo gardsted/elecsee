@@ -1,24 +1,27 @@
 #!/bin/bash
-# has debug, logfile, container, prefix and suffix
-[ "${debug}" = "true" ] && set -x
 
 
-[ "${suffix}" = "model" ] && echo add python to model - this should be quick && (
-( 
-cat << EOF
+function model(){
+echo add python3 to model - this should be quick
+(cat << EOF
 [ "${debug}" = "true" ] && set -x
-apt-get --quiet install -y python3 python3-setuptools python-venv
+apt-get --quiet install -y python3 python3-setuptools
 EOF
-) | sudo lxc shell  ${container} >>${logfile} 2>&1
-) >> ${logfile} 2>&1
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
 
-[ ! "${suffix}" = "model" ] && echo initialize python && (
-( 
-cat << EOF
+
+
+
+function instance(){
+(cat << EOF
 [ "${debug}" = "true" ] && set -x
 
 EOF
-) | sudo lxc shell  ${container} >>${logfile} 2>&1
-) >> ${logfile} 2>&1
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
 
 
+
+
+$CONTEXT

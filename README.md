@@ -1,5 +1,7 @@
 # elecsee
 
+move on - nothing to see here - not yet in a usable state
+
 You need to apt install lxc to play with these scripts
 
 ## elecsee

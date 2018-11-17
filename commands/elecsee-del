@@ -1,0 +1,7 @@
+#!/bin/bash
+[ "${debug}" = "true" ] && set -x
+for CONTAINER in ${CONTAINERS}
+do
+    SUFFIX=${CONTAINER##*-}
+    [ ! "${SUFFIX}" = "model" ] && lxc-destroy --force ${CONTAINER}
+done
