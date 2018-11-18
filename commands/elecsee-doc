@@ -33,6 +33,7 @@ for ix in $( echo ${!_ARGSPEC[*]} | sort)
 do
     echo
     echo "##$ix"
+    echo
     if [ "${_ARGSPEC[$ix]}" = "" ]
     then
         echo "**elecsee $ix** takes no arguments"
