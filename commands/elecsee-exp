@@ -1,0 +1,40 @@
+#!/bin/bash
+[ "${debug}" = "true" ] && set -x
+SERVICENAME=elecsee-exp-${PROTO}-${CONTAINER}-${INTERNAL}-${EXTERNAL}
+
+function systemd-forwarder(){
+(cat << EOF
+[Unit]
+Description=elecsee expose ${PROTO} on ${CONTAINER}:${INTERNAL} on external ${EXTERNAL}
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/socat ${PROTO}-LISTEN:${EXTERNAL},fork,reuseaddr ${PROTO}:${CONTAINER}:${INTERNAL}
+
+[Install]
+WantedBy=multi-user.target
+EOF
+) > /etc/systemd/system/${SERVICENAME}.service
+    systemctl enable ${SERVICENAME}.service
+    systemctl start ${SERVICENAME}.service
+    systemctl status ${SERVICENAME}.service
+}
+
+
+function exp(){
+(
+    case ${PROTO} in
+        (TCP|UDP) systemd-forwarder ;;  
+    esac 
+) >> ${logfile} 2>&1
+}
+
+function pxe(){
+(
+    systemctl stop ${SERVICENAME}.service
+    systemctl disable ${SERVICENAME}.service
+    systemctl status ${SERVICENAME}.service
+) >> ${logfile} 2>&1
+}
+
+${CMD}

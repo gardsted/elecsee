@@ -17,7 +17,7 @@ function instance(){
     lxc-copy --name ${PREFIX}-model --newname ${CONTAINER}
     lxc-start --name ${CONTAINER}
     ${ELECSEE} net ${CONTAINER}
-    ${ELECSEE} nur hsts
+    ${ELECSEE} hst
 }
 
 

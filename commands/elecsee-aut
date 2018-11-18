@@ -1,0 +1,45 @@
+#!/bin/bash
+[ "${debug}" = "true" ] && set -x
+
+
+function systemd-container(){
+(cat << EOF
+[Unit]
+Description=elecsee run ${CONTAINER}
+
+[Service]
+Type=forking
+ExecStart=${ELECSEE} onn ${CONTAINER}
+ExecStop=${ELECSEE} off ${CONTAINER}
+
+[Install]
+WantedBy=multi-user.target
+EOF
+) > /etc/systemd/system/elecsee-${CONTAINER}.service
+    systemctl enable elecsee-${CONTAINER}.service
+    systemctl start elecsee-${CONTAINER}.service
+    systemctl status elecsee-${CONTAINER}.service
+}
+
+
+
+function tua(){
+    for CONTAINER in ${CONTAINERS}
+    do
+        export CONTAINER
+        systemctl stop elecsee-${CONTAINER}.service
+        systemctl disable elecsee-${CONTAINER}.service
+        systemctl status elecsee-${CONTAINER}.service
+    done >> ${logfile} 2>&1
+}
+
+function aut(){
+    for CONTAINER in ${CONTAINERS}
+    do
+        export CONTAINER
+        (bash -x ${ELECSEE} tua ${CONTAINER})
+        (systemd-container)
+    done >> ${logfile} 2>&1
+}
+
+${CMD}

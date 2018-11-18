@@ -1,2 +1,7 @@
 #!/bin/bash
-sudo lxc-stop --name ${CONTAINER}
+[ "${debug}" = "true" ] && set -x
+
+for CONTAINER in ${CONTAINERS}
+do
+    sudo lxc-stop --name ${CONTAINER}
+done

@@ -1,0 +1,15 @@
+#!/bin/bash
+[ "${debug}" = "true" ] && set -x
+HOSTS=/etc/hosts
+
+function hstsbase(){
+    echo "# ${HOSTS}.base, initially copied from ${HOSTS} by ${ELECSEE}" > ${HOSTS}.base
+    cat ${HOSTS} >> ${HOSTS}.base
+}
+
+set -e
+[ ! -f "${HOSTS}".base ] && (hstsbase)
+echo "# ${HOSTS} generated from ${HOSTS}.base by ${ELECSEE}" > ${HOSTS}.elecsee
+${ELECSEE} lst | grep -v ' - ' | awk '{print $2 "\t" $1}' >> ${HOSTS}.elecsee
+cat ${HOSTS}.base >> ${HOSTS}.elecsee
+mv ${HOSTS}.elecsee ${HOSTS}
