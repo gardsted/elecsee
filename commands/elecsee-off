@@ -1,7 +1,25 @@
 #!/bin/bash
 [ "${debug}" = "true" ] && set -x
 
-for CONTAINER in ${CONTAINERS}
-do
-    sudo lxc-stop --name ${CONTAINER}
-done
+function hlp(){
+( cat << EOF
+   off stops all containers on the command line
+EOF
+) >> ${logfile} 2>&1
+}
+
+function doc(){
+( cat << EOF
+$(hlp)
+EOF
+) >> ${logfile} 2>&1
+}
+
+function off(){
+    for CONTAINER in ${CONTAINERS}
+    do
+        sudo lxc-stop --name ${CONTAINER}
+    done
+}
+
+$CMD

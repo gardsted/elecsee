@@ -1,7 +1,26 @@
 #!/bin/bash
 [ "${debug}" = "true" ] && set -x
-for CONTAINER in ${CONTAINERS}
-do
-    SUFFIX=${CONTAINER##*-}
-    [ ! "${SUFFIX}" = "model" ] && lxc-destroy --force ${CONTAINER}
-done
+
+function hlp(){
+( cat << EOF
+    del will delete  CONTAINERS - even if they are running (using the --force flag on lxc-destroy)
+EOF
+) >> ${logfile} 2>&1
+}
+
+function doc(){
+( cat << EOF
+$(hlp)
+EOF
+) >> ${logfile} 2>&1
+}
+
+function del(){
+    for CONTAINER in ${CONTAINERS}
+    do
+        SUFFIX=${CONTAINER##*-}
+        [ ! "${SUFFIX}" = "model" ] && lxc-destroy --force ${CONTAINER}
+    done
+}
+
+$CMD

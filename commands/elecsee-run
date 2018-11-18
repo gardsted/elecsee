@@ -1,5 +1,0 @@
-#!/bin/bash
-[ "${debug}" = "true" ] && set -x
-
-${ELECSEE} off ${CONTAINER} 
-lxc-start --foreground ${CONTAINER}

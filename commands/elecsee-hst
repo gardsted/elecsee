@@ -1,5 +1,19 @@
 #!/bin/bash
 [ "${debug}" = "true" ] && set -x
+
+function hlp(){
+( cat << EOF
+EOF
+) >> ${logfile} 2>&1
+}
+
+function doc(){
+( cat << EOF
+$(hlp)
+EOF
+) >> ${logfile} 2>&1
+}
+
 HOSTS=/etc/hosts
 
 function hstsbase(){
@@ -7,9 +21,13 @@ function hstsbase(){
     cat ${HOSTS} >> ${HOSTS}.base
 }
 
-set -e
-[ ! -f "${HOSTS}".base ] && (hstsbase)
-echo "# ${HOSTS} generated from ${HOSTS}.base by ${ELECSEE}" > ${HOSTS}.elecsee
-${ELECSEE} lst | grep -v ' - ' | awk '{print $2 "\t" $1}' >> ${HOSTS}.elecsee
-cat ${HOSTS}.base >> ${HOSTS}.elecsee
-mv ${HOSTS}.elecsee ${HOSTS}
+function hst(){
+    set -e
+    [ ! -f "${HOSTS}".base ] && (hstsbase)
+    echo "# ${HOSTS} generated from ${HOSTS}.base by ${ELECSEE}" > ${HOSTS}.elecsee
+    ${ELECSEE} lst | grep -v ' - ' | awk '{print $2 "\t" $1}' >> ${HOSTS}.elecsee
+    cat ${HOSTS}.base >> ${HOSTS}.elecsee
+    mv ${HOSTS}.elecsee ${HOSTS}
+}
+
+$CMD

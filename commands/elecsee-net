@@ -1,6 +1,21 @@
 #!/bin/bash
+[ "${debug}" = "true" ] && set -x
 
-function net(){
+function hlp(){
+( cat << EOF
+    net awaits until all containers on the command line has network connection (this usually takes app. 4 seconds
+EOF
+) >> ${logfile} 2>&1
+}
+
+function doc(){
+( cat << EOF
+$(hlp)
+EOF
+) >> ${logfile} 2>&1
+}
+
+function _net(){
 (
 cat << EOF
 (
@@ -15,7 +30,12 @@ EOF
 ) | sudo lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
-for CONTAINER in ${CONTAINERS}
-do
-    net
-done
+function net(){
+    for CONTAINER in ${CONTAINERS}
+    do
+        _net
+    done
+}
+
+
+$CMD

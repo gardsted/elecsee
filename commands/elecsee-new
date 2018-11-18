@@ -1,6 +1,25 @@
 #!/bin/bash
 [ "${debug}" = "true" ] && set -x
 
+function hlp(){
+( cat << EOF
+    new creates conteiner from a model, and if the model does not exist, it creates the model first - see 'doc' for more info
+EOF
+) >> ${logfile} 2>&1
+}
+
+function doc(){
+( cat << EOF
+    new creates conteiner from a model, and if the model does not exist, it creates the model first 
+        models are placed in the script directory and have to functions which are called from this script
+        'model' is called if a model does not exist
+        'instance' is called last and creates a container of the specified name
+
+        a container called solr-1 wil have a model called solr-model, hence model is a forbidden container suffix in elecsee
+EOF
+) >> ${logfile} 2>&1
+}
+
 function model(){
     export CONTAINER=${PREFIX}-model
     lxc-destroy -f ${CONTAINER}
@@ -21,24 +40,23 @@ function instance(){
 }
 
 
-for CONTAINER in ${CONTAINERS}
-do
-    export CONTAINER
-    export SUFFIX=${CONTAINER##*-}
-    export PREFIX=${CONTAINER%-${SUFFIX}}
-    ${ELECSEE} lst | grep '^'${PREFIX}-model' ' >> ${logfile} 2>&1 || (
-        echo building model
-        (model)
-    )
-    echo building ${CONTAINER}
-    (instance >> ${logfile} 2>&1)
-    CONTEXT=instance /bin/bash ${ELECSEE_SCRIPTS}/ssh
-    CONTEXT=instance /bin/bash ${ELECSEE_SCRIPTS}/${PREFIX}
-    lxc-stop --name ${CONTAINER}
-    lxc-start --name ${CONTAINER}
-done
+function new(){
+    for CONTAINER in ${CONTAINERS}
+    do
+        export CONTAINER
+        export SUFFIX=${CONTAINER##*-}
+        export PREFIX=${CONTAINER%-${SUFFIX}}
+        ${ELECSEE} lst | grep '^'${PREFIX}-model' ' >> ${logfile} 2>&1 || (
+            echo building model
+            (model)
+        )
+        echo building ${CONTAINER}
+        (instance >> ${logfile} 2>&1)
+        CONTEXT=instance /bin/bash ${ELECSEE_SCRIPTS}/ssh
+        CONTEXT=instance /bin/bash ${ELECSEE_SCRIPTS}/${PREFIX}
+        lxc-stop --name ${CONTAINER}
+        lxc-start --name ${CONTAINER}
+    done
+}
 
-# transfer public key to all containers
-# remove stale keys from known_hosts
-# make ssh and accept this host
-
+$CMD

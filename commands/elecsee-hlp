@@ -1,0 +1,39 @@
+#!/bin/bash
+export debug=false
+export logfile=/dev/stdout
+. ${ELECSEE} # to get argspec array
+
+
+function hlp(){
+cat << EOF
+
+elecsee
+-------
+
+elecsee has a set of subcommands that takes parameters, but no flags - below is a summary
+
+EOF
+
+for ix in $( echo ${!_ARGSPEC[*]} | sort)
+do
+    echo "$ix"
+    if [ "${_ARGSPEC[$ix]}" = "" ]
+    then
+        echo "    elecsee $ix takes no arguments"
+    else
+        echo "    elecsee $ix takes the following arguments: ${_ARGSPEC[$ix]}"
+    fi
+    
+    [ ! "$ix" = "hlp" ] && logfile=/dev/stdout CMD=hlp ${ELECSEE_COMMANDS}/elecsee-${ix} && echo
+    
+done
+}
+
+function doc(){
+:
+}
+
+
+$CMD
+
+

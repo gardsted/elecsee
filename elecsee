@@ -1,17 +1,6 @@
 #!/bin/bash
-export CMD=$1 ; shift
-export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
-export RUNSOCKET=/var/lib/elecsee/run-socket
-export ELECSEE=$(readlink -f $0)
-export ELECSEE_COMMANDS=$(dirname $0)/commands
-export ELECSEE_SCRIPTS=$(dirname $0)/scripts
-export USS=clint USO=donald ME=$SUDO_USER
-([ "$debug" = "true" ] || [[ $- == *x* ]]) && debug=true || debug=false
-[ "${debug}" = "true" ] && logfile=/dev/stdout || logfile=/dev/null
-export logfile debug
-
 declare -A _ARGSPEC=(
-    # only 3 letter subcommands - onn :-)
+    # only 3 letter subcommands - onn :-) - see hlp and doc
     [new]="CONTAINERS[]" # lxc-create / lxc-copy CONTAINERS[]
     [net]="CONTAINERS[]" # ping until network is up in all CONTAINERS[]
     [onn]="CONTAINERS[]" # lxc-start CONTAINERS[] - uses [net] to ensure they are up - returns/errs after max 10 secs
@@ -23,37 +12,52 @@ declare -A _ARGSPEC=(
     [exp]="PROTO INTERNAL EXTERNAL CONTAINER" # expose PROTOcol from container port (INTERNAL) on hosts (EXTERNAL) (udp/tcp=socat) (http/https=nginx)
     [pxe]="PROTO INTERNAL EXTERNAL CONTAINER" # remove exposure
     [hst]="" # modify hostfile so it also contains running containers
-    [xfr]="SOURCE DESTFILE CONTAINERS[]" # file into container (using lxc-attach as root)
-    [rcv]="SOURCE TOPFOLDER CONTAINERS[]" # file from each container (using lxc-attach as root) destination is same file in folder named after container under topfolder
+    [hlp]="" # write documentation to stdout - short help version
+    [doc]="" #'write documentation to stdout - long version')
 )
 
-export ARGSPEC=${_ARGSPEC[$CMD]}
-export ARGMIN=$(echo "${ARGSPEC}" | wc -w)
 
-declare -A _ERRSPEC=(
-    # error explanations
-    [0]=''
-    [101]="too few arguments, call like $ELECSEE $CMD $ARGSPEC"
-    [102]="excess arguments, call like $ELECSEE $CMD $ARGSPEC"
+[[ $ELECSEE = "" ]] && (
+    # running as subshell - this wil not be sourced when .
+    ([ "$debug" = "true" ] || [[ $- == *x* ]]) && debug=true || debug=false
+    [ "${debug}" = "true" ] && logfile=/dev/stdout || logfile=/dev/null
+    export CMD=${1} ; shift
+    export CMD=${CMD:-hlp}
+    export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
+    export RUNSOCKET=/var/lib/elecsee/run-socket
+    export ELECSEE=$(readlink -f $0)
+    export ELECSEE_COMMANDS=$(dirname ${ELECSEE})/commands
+    export ELECSEE_SCRIPTS=$(dirname ${ELECSEE})/scripts
+    export USS=clint USO=donald ME=$SUDO_USER
+    export logfile debug
+
+    export ARGSPEC=${_ARGSPEC[$CMD]}
+    export ARGMIN=$(echo "${ARGSPEC}" | wc -w)
+
+    declare -A _ERRSPEC=(
+        # error explanations
+        [0]=''
+        [101]="too few arguments, call like $ELECSEE $CMD $ARGSPEC"
+        [102]="excess arguments, call like $ELECSEE $CMD $ARGSPEC"
+    )
+    export _ERRSPEC
+
+    ( if [ "${ARGSPEC}" = "${ARGSPEC%\[\]}" ]; then
+        # fixed args
+        echo $* | while read ${ARGSPEC} THEREST
+        do
+            [[ $# -ge ${ARGMIN} ]] || exit 101
+            [ -n "${THEREST}" ] && exit 102
+            export ${ARGSPEC} ELECSEE
+            ${ELECSEE_COMMANDS}/elecsee-${CMD}
+        done
+    else
+        # varargs
+        echo $* | while read ${ARGSPEC%\[\]}
+        do
+            [[ $# -ge ${ARGMIN} ]] || exit 101
+            export ${ARGSPEC%\[\]} ELECSEE
+            ${ELECSEE_COMMANDS}/elecsee-${CMD}
+        done
+    fi ) || echo ${_ERRSPEC[$?]}
 )
-export _ERRSPEC
-
-( if [ "${ARGSPEC}" = "${ARGSPEC%\[\]}" ]; then
-    # fixed args
-    echo $* | while read ${ARGSPEC} THEREST
-    do
-        [[ $# -ge ${ARGMIN} ]] || exit 101
-        [ -n "${THEREST}" ] && exit 102
-        export ${ARGSPEC} ELECSEE
-        ${ELECSEE_COMMANDS}/elecsee-${CMD}
-    done
-else
-    # varargs
-    echo $* | while read ${ARGSPEC%\[\]}
-    do
-        [[ $# -ge ${ARGMIN} ]] || exit 101
-        export ${ARGSPEC%\[\]} ELECSEE
-        ${ELECSEE_COMMANDS}/elecsee-${CMD}
-    done
-fi ) || echo ${_ERRSPEC[$?]}
-

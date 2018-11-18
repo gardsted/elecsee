@@ -1,2 +1,23 @@
 #!/bin/bash
-lxc-ls --fancy -Fname,ipv4 | tail -n +2 > /dev/stdout
+[ "${debug}" = "true" ] && set -x
+
+function hlp(){
+( cat << EOF
+    lst lists hosts+ips using lxc-ls --fancy without headers 
+EOF
+) >> ${logfile} 2>&1
+}
+
+function doc(){
+( cat << EOF
+$(hlp)
+EOF
+) >> ${logfile} 2>&1
+}
+
+function lst(){
+    lxc-ls --fancy -Fname,ipv4 | tail -n +2 > /dev/stdout
+}
+
+
+$CMD

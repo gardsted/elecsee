@@ -1,2 +1,45 @@
 #!/bin/bash
 [ "${debug}" = "true" ] && set -x
+. ${ELECSEE} # to get argspec array
+
+function hlp(){
+( cat << EOF
+    doc writes elecsees documentation
+EOF
+) >> ${logfile} 2>&1
+}
+
+
+
+function doc(){
+cat << EOF
+ELECSEE
+
+This is the documentation of elecsee, a utility for easing my use of lxc on ubuntu.
+
+It can do three things that I missed:
+    1) put containers in /etc/hosts automatically
+    2) make containers autostartable using systemd units
+    3) expose TCP and UDP services from containers on the primary interface of the host
+
+elecsee has a set of subcommands that takes parameters, but no flags - below is a summary
+
+EOF
+
+for ix in $( echo ${!_ARGSPEC[*]} | sort)
+do
+    echo "$ix"
+    if [ "${_ARGSPEC[$ix]}" = "" ]
+    then
+        echo "    elecsee $ix takes no arguments"
+    else
+        echo "    elecsee $ix takes the following arguments: ${_ARGSPEC[$ix]}"
+    fi
+    
+    [ ! "$ix" = "doc" ] && logfile=/dev/stdout CMD=doc ${ELECSEE_COMMANDS}/elecsee-${ix} && echo
+    
+done
+}
+
+
+$CMD
