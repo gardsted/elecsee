@@ -5,14 +5,14 @@ function hlp(){
 ( cat << EOF
     onn starts all containers on the command line
 EOF
-) >> ${logfile} 2>&1
+)
 }
 
 function doc(){
 ( cat << EOF
 $(hlp)
 EOF
-) >> ${logfile} 2>&1
+)
 }
 
 function onn(){

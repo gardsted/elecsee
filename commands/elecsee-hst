@@ -4,14 +4,14 @@
 function hlp(){
 ( cat << EOF
 EOF
-) >> ${logfile} 2>&1
+)
 }
 
 function doc(){
 ( cat << EOF
 $(hlp)
 EOF
-) >> ${logfile} 2>&1
+)
 }
 
 HOSTS=/etc/hosts

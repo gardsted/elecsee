@@ -24,7 +24,7 @@ do
         echo "    elecsee $ix takes the following arguments: ${_ARGSPEC[$ix]}"
     fi
     
-    [ ! "$ix" = "hlp" ] && logfile=/dev/stdout CMD=hlp ${ELECSEE_COMMANDS}/elecsee-${ix} && echo
+    [ ! "$ix" = "hlp" ] CMD=hlp ${ELECSEE_COMMANDS}/elecsee-${ix} && echo
     
 done
 }

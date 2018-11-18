@@ -5,14 +5,14 @@ function hlp(){
 ( cat << EOF
     lst lists hosts+ips using lxc-ls --fancy without headers 
 EOF
-) >> ${logfile} 2>&1
+)
 }
 
 function doc(){
 ( cat << EOF
 $(hlp)
 EOF
-) >> ${logfile} 2>&1
+)
 }
 
 function lst(){

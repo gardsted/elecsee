@@ -6,14 +6,14 @@ function hlp(){
     exp exposes an UDP or TCP service from the container on the hosts interfaces using socat port forwarding
     pxe reverses the action, removing the exposure
 EOF
-) >> ${logfile} 2>&1
+)
 }
 
 function doc(){
 ( cat << EOF
 $(hlp)
 EOF
-) >> ${logfile} 2>&1
+)
 }
 
 SERVICENAME=elecsee-exp-${PROTO}-${CONTAINER}-${INTERNAL}-${EXTERNAL}

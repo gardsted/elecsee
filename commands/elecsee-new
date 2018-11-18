@@ -5,7 +5,7 @@ function hlp(){
 ( cat << EOF
     new creates conteiner from a model, and if the model does not exist, it creates the model first - see 'doc' for more info
 EOF
-) >> ${logfile} 2>&1
+)
 }
 
 function doc(){
@@ -17,7 +17,7 @@ function doc(){
 
         a container called solr-1 wil have a model called solr-model, hence model is a forbidden container suffix in elecsee
 EOF
-) >> ${logfile} 2>&1
+)
 }
 
 function model(){
