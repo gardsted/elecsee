@@ -32,7 +32,7 @@ EOF
 for ix in $( echo ${!_ARGSPEC[*]} | sort)
 do
     echo
-    echo "##$ix"
+    echo "## $ix"
     echo
     if [ "${_ARGSPEC[$ix]}" = "" ]
     then
