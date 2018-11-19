@@ -18,7 +18,7 @@ EOF
 function off(){
     for CONTAINER in ${CONTAINERS}
     do
-        sudo lxc-stop --name ${CONTAINER}
+        lxc-stop --name ${CONTAINER}
     done
 }
 

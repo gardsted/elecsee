@@ -26,7 +26,9 @@ It can do three things that I missed:
 * make containers autostartable using systemd units
 * expose TCP and UDP services from containers on the primary interface of the host
 
-elecsee has a set of subcommands that takes parameters, but no flags - below is a summary
+This is not a docker replacement. Lots can go wrong when building the containers, using bash -x \$(which elecsee) should turn on full debugging
+
+Elecsee has a set of subcommands that takes parameters, but no flags - below is a summary
 EOF
 )
 

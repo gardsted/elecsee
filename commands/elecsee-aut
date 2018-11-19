@@ -12,6 +12,40 @@ EOF
 function doc(){
 ( cat << EOF
 $(hlp)
+
+running the command:
+
+    sudo elecsee aut solr-1
+
+will create a file: **/etc/systemd/system/elecsee-solr-1.service** with the following contents, enabling and starting it:
+
+    [Unit]
+    Description=elecsee run solr-1
+
+    [Service]
+    Type=forking
+    ExecStart=/usr/bin/elecsee/elecsee onn solr-1
+    ExecStop=/usr/bin/elecsee/elecsee off solr-1
+
+    [Install]
+    WantedBy=multi-user.target
+
+This can be seen using:
+
+    sudo systemctl status elecsee-solr-1.service
+
+Which will give an output similar to this
+
+    ● elecsee-solr-1.service - elecsee run solr-1
+       Loaded: loaded (/etc/systemd/system/elecsee-solr-1.service; enabled; vendor preset: enabled)
+       Active: active (running) since Mon 2018-11-19 20:48:27 CET; 5min ago
+      Process: 14105 ExecStart=/usr/bin/elecsee/elecsee onn solr-1 (code=exited, status=0/SUCCESS)
+     Main PID: 14120 (lxc-start)
+        Tasks: 1 (limit: 4915)
+       CGroup: /system.slice/elecsee-solr-1.service
+               └─14120 [lxc monitor] /var/lib/lxc solr-1
+
+
 EOF
 )
 }

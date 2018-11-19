@@ -27,7 +27,7 @@ cat << EOF
     done 
 )
 EOF
-) | sudo lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 function net(){

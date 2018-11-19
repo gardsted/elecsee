@@ -12,6 +12,32 @@ EOF
 function doc(){
 ( cat << EOF
 $(hlp)
+
+running this command:
+
+    sudo elecsee exp TCP 8983 80 solr-1
+
+will produce the file **/etc/systemd/system/elecsee-exp-TCP-solr-1-8983-80.service** with the following contents and enable and start it
+
+    [Unit]
+    Description=elecsee expose TCP on solr-1:8983 on external 80
+
+    [Service]
+    Type=simple
+    ExecStart=/usr/bin/socat TCP-LISTEN:80,fork,reuseaddr TCP:solr-1:8983
+
+    [Install]
+    WantedBy=multi-user.target
+
+while running this command:
+
+    sudo elecsee pxe TCP 8983 80 solr-1
+
+will stop and disable the service and subsequently remove the file
+
+forwarding is as You see currently done using only socat, but it probably should be extended to using both this (for accesing from host it self) and maybe iptables (for accessing from outside) there is an entry on superusers [here](https://superuser.com/questions/1322143/prerouting-to-lxc-container-with-iptables)
+furthermore there is one here, that is way more interesting - on [containerops](http://containerops.org/2013/11/19/lxc-networking/) dissussing all kinds of container/networking related  It seems that it is possible to let the container access the physical interface. I wonder what happens when I go on vpn?
+
 EOF
 )
 }
@@ -34,6 +60,7 @@ EOF
     systemctl enable ${SERVICENAME}.service
     systemctl start ${SERVICENAME}.service
     systemctl status ${SERVICENAME}.service
+    
 }
 
 
@@ -50,6 +77,7 @@ function pxe(){
     systemctl stop ${SERVICENAME}.service
     systemctl disable ${SERVICENAME}.service
     systemctl status ${SERVICENAME}.service
+    rm /etc/systemd/system/${SERVICENAME}.service
 ) >> ${logfile} 2>&1
 }
 

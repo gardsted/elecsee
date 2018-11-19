@@ -19,7 +19,7 @@ function instance(){
 echo initialize metasploit
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
-sudo su -l -c'/opt/metasploit-framework/bin/msfdb init' $USS
+su -l -c'/opt/metasploit-framework/bin/msfdb init' $USS
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
