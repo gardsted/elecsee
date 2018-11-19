@@ -17,7 +17,7 @@ declare -A _ARGSPEC=(
 )
 
 
-[[ $ELECSEE = "" ]] && (
+[ -z "${SOURCE_ONLY}" ] && (
     # running as subshell - this wil not be sourced when .
     ([ "$debug" = "true" ] || [[ $- == *x* ]]) && debug=true || debug=false
     [ "${debug}" = "true" ] && logfile=/dev/stdout || logfile=/dev/null

@@ -3,7 +3,7 @@
 
 function hlp(){
 ( cat << EOF
-    del will delete  CONTAINERS - even if they are running (using the --force flag on lxc-destroy)
+del will delete  CONTAINERS - even if they are running (using the --force flag on lxc-destroy)
 EOF
 )
 }

@@ -3,8 +3,8 @@
 
 function hlp(){
 ( cat << EOF
-    exp exposes an UDP or TCP service from the container on the hosts interfaces using socat port forwarding
-    pxe reverses the action, removing the exposure
+exp exposes an UDP or TCP service from the container on the hosts interfaces using socat port forwarding
+pxe reverses the action, removing the exposure
 EOF
 )
 }

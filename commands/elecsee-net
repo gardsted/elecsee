@@ -3,7 +3,7 @@
 
 function hlp(){
 ( cat << EOF
-    net awaits until all containers on the command line has network connection (this usually takes app. 4 seconds
+net awaits until all containers on the command line has network connection (this usually takes app. 4 seconds
 EOF
 )
 }

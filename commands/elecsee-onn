@@ -3,7 +3,7 @@
 
 function hlp(){
 ( cat << EOF
-    onn starts all containers on the command line
+onn starts all containers on the command line
 EOF
 )
 }

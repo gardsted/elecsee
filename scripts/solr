@@ -1,8 +1,6 @@
 #!/bin/bash
 SOLR=7.5.0
 
-/bin/bash $(dirname $0)/java
-
 
 function autostart-solr(){
 (cat << EOF
@@ -33,7 +31,7 @@ function model(){
 echo add solr-${SOLR} to model - this will take some time
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
-apt-get --quiet install -y curl wget
+apt-get --quiet install -y curl wget openjdk-8-jre-headless
 wget http://apache.40b.nl/lucene/solr/${SOLR}/solr-${SOLR}.tgz 
 chown $USO:$USO solr-${SOLR}.tgz
 mv solr-${SOLR}.tgz /home/$USO

@@ -3,8 +3,8 @@
 
 function hlp(){
 ( cat << EOF
-    aut will put CONTAINER into autostart using a systemd unit file named after the container: elecsee-CONTAINER-service
-    tua will reverse that action, disabling and stopping the service
+aut will put CONTAINER into autostart using a systemd unit file named after the container: elecsee-CONTAINER-service
+tua will reverse that action, disabling and stopping the service
 EOF
 )
 }

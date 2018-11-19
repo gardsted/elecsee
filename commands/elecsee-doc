@@ -1,11 +1,12 @@
 #!/bin/bash
 [ "${debug}" = "true" ] && set -x
+export SOURCE_ONLY=yes
 . ${ELECSEE} # to get argspec array
 export logfile=/dev/stdout
 
 function hlp(){
 ( cat << EOF
-    doc writes elecsees documentation
+doc writes elecsees documentation
 EOF
 )
 }
@@ -43,7 +44,7 @@ do
         echo
     fi
     
-    [ ! "$ix" = "doc" ] && CMD=doc ${ELECSEE_COMMANDS}/elecsee-${ix} | sed 's/^ */\n/'
+    [ ! "$ix" = "doc" ] && CMD=doc ${ELECSEE_COMMANDS}/elecsee-${ix} 
     
 done
 }

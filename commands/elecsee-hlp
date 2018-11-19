@@ -1,5 +1,6 @@
 #!/bin/bash
-export debug=false
+[ "${debug}" = "true" ] && set -x
+export SOURCE_ONLY=yes
 export logfile=/dev/stdout
 . ${ELECSEE} # to get argspec array
 
@@ -10,7 +11,7 @@ cat << EOF
 elecsee
 -------
 
-elecsee has a set of subcommands that takes parameters, but no flags - below is a summary
+elecsee has a set of 3 letter subcommands that takes parameters, but no flags - below is a summary
 
 EOF
 
@@ -24,16 +25,17 @@ do
         echo "    elecsee $ix takes the following arguments: ${_ARGSPEC[$ix]}"
     fi
     
-    [ ! "$ix" = "hlp" ] CMD=hlp ${ELECSEE_COMMANDS}/elecsee-${ix} && echo
+    [ ! "$ix" = "hlp" ] && CMD=hlp ${ELECSEE_COMMANDS}/elecsee-${ix} | sed 's/^/    /'
     
 done
 }
 
 function doc(){
-:
+cat << EOF
+The following example will print out the help text
+
+    elecsee hlp
+EOF
 }
 
-
 $CMD
-
-

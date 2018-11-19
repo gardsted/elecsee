@@ -3,21 +3,28 @@
 
 function hlp(){
 ( cat << EOF
-    new creates conteiner from a model, and if the model does not exist, it creates the model first - see 'doc' for more info
+new creates conteiner from a model, and if the model does not exist, it creates the model first - see 'doc' for more info
 EOF
 )
 }
 
 function doc(){
-( cat << EOF
-    new creates conteiner from a model, and if the model does not exist, it creates the model first 
-        models are placed in the script directory and have to functions which are called from this script
-        'model' is called if a model does not exist
-        'instance' is called last and creates a container of the specified name
+cat << EOF
+new creates container from a model, and if the model does not exist, it creates the model first 
+models are placed in the script directory and have to functions which are called from this script
+'model' is called if a model does not exist
+'instance' is called last and creates a container of the specified name
 
-        a container called solr-1 wil have a model called solr-model, hence model is a forbidden container suffix in elecsee
+The following example shows the creation of a solr node
+
+    sudo ./elecsee new solr-1
+    building model
+    add ssh, users (clint and donald) and public certificates to model
+    add java 8 to model - this will take some time
+    add solr-7.5.0 to model - this will take some time
+    building solr-1
+
 EOF
-)
 }
 
 function model(){
@@ -26,8 +33,8 @@ function model(){
     lxc-create --name ${CONTAINER} -t download -- ${LINUX}  >> ${logfile} 2>&1
     lxc-start --name ${CONTAINER}
     ${ELECSEE} net ${CONTAINER}
-    CONTEXT=model /bin/bash ${ELECSEE_SCRIPTS}/ssh
-    CONTEXT=model /bin/bash ${ELECSEE_SCRIPTS}/${PREFIX}
+    CONTEXT=model /bin/bash -e ${ELECSEE_SCRIPTS}/ssh
+    CONTEXT=model /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
 }
 
 function instance(){

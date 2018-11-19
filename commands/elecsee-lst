@@ -3,16 +3,21 @@
 
 function hlp(){
 ( cat << EOF
-    lst lists hosts+ips using lxc-ls --fancy without headers 
+lst lists hosts+ips using lxc-ls --fancy without headers 
 EOF
 )
 }
 
 function doc(){
-( cat << EOF
+cat << EOF
 $(hlp)
+
+The follwing example shows calling elecsee lst and it's output
+
+    sudo elecsee lst
+    solr-1      10.0.3.19 
+    solr-model  -         
 EOF
-)
 }
 
 function lst(){

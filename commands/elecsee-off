@@ -3,7 +3,7 @@
 
 function hlp(){
 ( cat << EOF
-   off stops all containers on the command line
+off stops all containers on the command line
 EOF
 )
 }
