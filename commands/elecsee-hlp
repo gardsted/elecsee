@@ -20,12 +20,21 @@ do
     echo "$ix"
     if [ "${_ARGSPEC[$ix]}" = "" ]
     then
-        echo "    elecsee $ix takes no arguments"
+        echo "    takes no arguments"
     else
-        echo "    elecsee $ix takes the following arguments: ${_ARGSPEC[$ix]}"
+        echo "    arguments: ${_ARGSPEC[$ix]}"
     fi
-    
-    [ ! "$ix" = "hlp" ] && CMD=hlp ${ELECSEE_COMMANDS}/elecsee-${ix} | sed 's/^/    /'
+    lix=$(realpath ${ELECSEE_COMMANDS}/elecsee-$ix)
+    lix=${lix##*elecsee-}
+    if [ "$ix" = "$CMD" ] 
+    then
+        echo "    you are watching the output of this command"
+    elif [ "$lix" = "$ix" ]
+    then
+        CMD=hlp ${ELECSEE_COMMANDS}/elecsee-${ix} | sed 's/^/    /'
+    else
+        echo "    this is the inverse of the command '"$lix"' - and is documented there"
+    fi
     
 done
 }

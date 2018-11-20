@@ -46,7 +46,17 @@ do
         echo
     fi
     
-    [ ! "$ix" = "doc" ] && CMD=doc ${ELECSEE_COMMANDS}/elecsee-${ix} 
+    lix=$(realpath ${ELECSEE_COMMANDS}/elecsee-$ix)
+    lix=${lix##*elecsee-}
+    if [ "$ix" = "$CMD" ] 
+    then
+        echo "    you are watching the output of this command"
+    elif [ "$lix" = "$ix" ]
+    then
+        CMD=doc ${ELECSEE_COMMANDS}/elecsee-${ix} 
+    else
+        echo "    this is the inverse of the command '"$lix"' - and is documented there"
+    fi
     
 done
 }

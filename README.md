@@ -16,34 +16,7 @@ Elecsee has a set of subcommands that takes parameters, but no flags - below is 
 
 **elecsee pxe** takes the following arguments: PROTO INTERNAL EXTERNAL CONTAINER
 
-exp exposes an UDP or TCP service from the container on the hosts interfaces using socat port forwarding
-pxe reverses the action, removing the exposure
-
-running this command:
-
-    sudo elecsee exp TCP 8983 80 solr-1
-
-will produce the file **/etc/systemd/system/elecsee-exp-TCP-solr-1-8983-80.service** with the following contents and enable and start it
-
-    [Unit]
-    Description=elecsee expose TCP on solr-1:8983 on external 80
-
-    [Service]
-    Type=simple
-    ExecStart=/usr/bin/socat TCP-LISTEN:80,fork,reuseaddr TCP:solr-1:8983
-
-    [Install]
-    WantedBy=multi-user.target
-
-while running this command:
-
-    sudo elecsee pxe TCP 8983 80 solr-1
-
-will stop and disable the service and subsequently remove the file
-
-forwarding is as You see currently done using only socat, but it probably should be extended to using both this (for accesing from host it self) and maybe iptables (for accessing from outside) there is an entry on superusers [here](https://superuser.com/questions/1322143/prerouting-to-lxc-container-with-iptables)
-furthermore there is one here, that is way more interesting - on [containerops](http://containerops.org/2013/11/19/lxc-networking/) dissussing all kinds of container/networking related  It seems that it is possible to let the container access the physical interface. I wonder what happens when I go on vpn?
-
+    this is the inverse of the command 'exp' - and is documented there
 
 ## lst
 
@@ -73,42 +46,7 @@ net awaits until all containers on the command line has network connection (this
 
 **elecsee tua** takes the following arguments: CONTAINERS[]
 
-aut will put CONTAINER into autostart using a systemd unit file named after the container: elecsee-CONTAINER-service
-tua will reverse that action, disabling and stopping the service
-
-running the command:
-
-    sudo elecsee aut solr-1
-
-will create a file: **/etc/systemd/system/elecsee-solr-1.service** with the following contents, enabling and starting it:
-
-    [Unit]
-    Description=elecsee run solr-1
-
-    [Service]
-    Type=forking
-    ExecStart=/usr/bin/elecsee/elecsee onn solr-1
-    ExecStop=/usr/bin/elecsee/elecsee off solr-1
-
-    [Install]
-    WantedBy=multi-user.target
-
-This can be seen using:
-
-    sudo systemctl status elecsee-solr-1.service
-
-Which will give an output similar to this
-
-    ● elecsee-solr-1.service - elecsee run solr-1
-       Loaded: loaded (/etc/systemd/system/elecsee-solr-1.service; enabled; vendor preset: enabled)
-       Active: active (running) since Mon 2018-11-19 20:48:27 CET; 5min ago
-      Process: 14105 ExecStart=/usr/bin/elecsee/elecsee onn solr-1 (code=exited, status=0/SUCCESS)
-     Main PID: 14120 (lxc-start)
-        Tasks: 1 (limit: 4915)
-       CGroup: /system.slice/elecsee-solr-1.service
-               └─14120 [lxc monitor] /var/lib/lxc solr-1
-
-
+    this is the inverse of the command 'aut' - and is documented there
 
 ## new
 
@@ -194,12 +132,13 @@ The following example will print out the help text
 
 **elecsee doc** takes no arguments
 
+    you are watching the output of this command
 
 ## hst
 
 **elecsee hst** takes no arguments
 
-
+ensures that all running containers are in /etc/hosts
 
 ## exp
 
