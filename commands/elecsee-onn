@@ -19,7 +19,7 @@ function onn(){
     for CONTAINER in ${CONTAINERS}
     do
         SUFFIX=${CONTAINER##*-}
-        [ ! "${SUFFIX}" = "model" ] && lxc-start ${CONTAINER}
+        lxc-start --name ${CONTAINER}
     done
 }
 

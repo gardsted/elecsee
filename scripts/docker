@@ -1,0 +1,40 @@
+#!/bin/bash
+SOLR=7.5.0
+
+
+function modify-config-for-docker(){
+    ${ELECSEE} off ${CONTAINER}
+    echo lxc.apparmor.profile = unconfined >> /var/lib/lxc/${CONTAINER}/config
+    echo lxc.cgroup.devices.allow = a >> /var/lib/lxc/${CONTAINER}/config
+    ${ELECSEE} onn ${CONTAINER}
+    ${ELECSEE} net ${CONTAINER}
+}
+
+
+
+function model(){
+(modify-config-for-docker)
+(cat << EOF
+apt-get install -y docker.io
+usermod -aG docker ${USS}
+usermod -aG docker ${USO}
+apt-get purge apparmor
+
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+(cat << EOF
+echo
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT
