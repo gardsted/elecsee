@@ -69,7 +69,7 @@ del will delete  CONTAINERS - even if they are running (using the --force flag o
 
 **elecsee doc** takes no arguments
 
-    you are watching the output of this command
+you are watching the output of this command
 
 ## exp
 
@@ -171,10 +171,10 @@ onn starts all containers on the command line
 
 **elecsee pxe** takes the following arguments: PROTO INTERNAL EXTERNAL CONTAINER
 
-    this is the inverse of the command 'exp' - and is documented there
+this is the inverse of the command 'exp' - and is documented there
 
 ## tua
 
 **elecsee tua** takes the following arguments: CONTAINERS[]
 
-    this is the inverse of the command 'aut' - and is documented there
+this is the inverse of the command 'aut' - and is documented there
