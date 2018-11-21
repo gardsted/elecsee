@@ -1,5 +1,10 @@
 #!/bin/bash
 
+function doc(){
+echo << EOF
+adds the metasplot framework to the model
+EOF
+}
 
 function model(){
 echo add metasploit to model

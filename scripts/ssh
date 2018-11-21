@@ -1,12 +1,24 @@
 #!/bin/bash
 
+function doc(){
+cat << EOF
+Two users are created ($USO and $USS), the first one is an ordinary user, the latter has sudo password-less sudo capabilities
+
+You are equipped with a special certificate (~/.ssh/elecsee.pub) if you dont have it in advance and the container-users ($USO and $USS) are both given the public key for this certificate, which enables you to log in to the containers without password (which these users do not have)
+
+This script assumes that 'hst' has been called while this container is running, since it will end it's work by trying to ssh into the named container
+EOF
+}
+function hlp(){
+echo add users $USO and $USS, public certs and ssh capabilites to the model
+}
 
 function elecsee-cert(){
     su -l -c 'ssh-keygen -b 2048 -t rsa -C elecsee -f ~/.ssh/elecsee' $ME
 }
 
 function model(){
-echo add ssh, users \($USS and $USO\) and public certificates to model
+(hlp)
 [ -f ~/.ssh/elecsee.pub ] || (elecsee-cert)
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
@@ -14,9 +26,6 @@ apt update
 apt install -y ssh openssh-server
 adduser $USS --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
 adduser $USO --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
-#mkdir -p /home/$USS /home/$USO
-#chown -R $USS:$USS /home/$USS 
-#chown -R $USO:$USO /home/$USO
 su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa' $USS 
 su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa' $USO
 echo $USS' ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers

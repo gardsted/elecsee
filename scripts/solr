@@ -2,6 +2,13 @@
 SOLR=7.5.0
 
 
+function doc(){
+cat << EOF
+adds solr and creates a core called 'default' with the data-generated schema
+EOF
+}
+
+
 function autostart-solr(){
 (cat << EOF
 [Unit]

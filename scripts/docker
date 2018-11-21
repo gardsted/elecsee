@@ -10,9 +10,20 @@ function modify-config-for-docker(){
     ${ELECSEE} net ${CONTAINER}
 }
 
+function doc(){
+(cat << EOF
+makes container suitable for running docker-containers inside. Both users ($USO and $USS) are added to the docker group, so sudo is not necessary for running docker commands.
 
+currently dependent of network management using net, hss, exp and aut
+EOF
+}
+
+function hlp(){
+echo install docker with group membership to both $USO and $USS
+}
 
 function model(){
+(hlp)
 (modify-config-for-docker)
 (cat << EOF
 apt-get install -y docker.io

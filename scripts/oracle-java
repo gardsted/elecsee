@@ -2,9 +2,14 @@
 # has debug, logfile, container, prefix and suffix
 [ "${debug}" = "true" ] && set -x
 
+function hlp(){
+cat << EOF
+adds java using ppa:webupd8team/java to the model
+EOF
+}
 
 function model(){
-echo add java 8 to model - this will take some time
+(hlp)
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
 apt-get -y install software-properties-common
