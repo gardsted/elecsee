@@ -15,7 +15,7 @@ elecsee has a set of 3 letter subcommands that takes parameters, but no flags - 
 
 EOF
 
-for ix in $( echo ${!_ARGSPEC[*]} | sort)
+for ix in $( printf "%s\n" ${!_ARGSPEC[*]} | sort)
 do
     echo "$ix"
     if [ "${_ARGSPEC[$ix]}" = "" ]
