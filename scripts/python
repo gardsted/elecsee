@@ -10,7 +10,8 @@ function model(){
 (hlp)
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
-apt-get --quiet install -y python3 python3-setuptools
+apt-get --quiet install -y python3 python3-pip
+pip3 install pip --upgrade
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }

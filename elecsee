@@ -14,6 +14,7 @@ declare -A _ARGSPEC=(
     [hst]="" # modify hostfile so it also contains running containers
     [hlp]="" # write documentation to stdout - short help version
     [doc]="" #'write documentation to stdout - long version')
+    [cmd]="CONTAINER ARGS[]" #'write documentation to stdout - long version')
 )
 
 
@@ -32,6 +33,7 @@ declare -A _ARGSPEC=(
     export logfile debug
 
     export ARGSPEC=${_ARGSPEC[$CMD]}
+    export ARGLEN=$#
     export ARGMIN=$(echo "${ARGSPEC}" | wc -w)
 
     declare -A _ERRSPEC=(
@@ -42,22 +44,20 @@ declare -A _ARGSPEC=(
     )
     export _ERRSPEC
 
-    ( if [ "${ARGSPEC}" = "${ARGSPEC%\[\]}" ]; then
+    for a in ${ARGSPEC%\[\]} THEREST
+    do 
+        export "$a"=$1
+        shift
+    done
+    
+
+    ( [[ $ARGLEN -ge ${ARGMIN} ]] || exit 101
+    if [ "${ARGSPEC}" = "${ARGSPEC%\[\]}" ]; then
         # fixed args
-        echo $* | while read ${ARGSPEC} THEREST
-        do
-            [[ $# -ge ${ARGMIN} ]] || exit 101
-            [ -n "${THEREST}" ] && exit 102
-            export ${ARGSPEC} ELECSEE
-            ${ELECSEE_COMMANDS}/elecsee-${CMD}
-        done
+        [ -n "${THEREST}" ] && exit 102
+        ${ELECSEE_COMMANDS}/elecsee-${CMD}
     else
         # varargs
-        echo $* | while read ${ARGSPEC%\[\]}
-        do
-            [[ $# -ge ${ARGMIN} ]] || exit 101
-            export ${ARGSPEC%\[\]} ELECSEE
-            ${ELECSEE_COMMANDS}/elecsee-${CMD}
-        done
+        ${ELECSEE_COMMANDS}/elecsee-${CMD}
     fi ) || echo ${_ERRSPEC[$?]}
 )

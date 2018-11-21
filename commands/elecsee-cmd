@@ -1,0 +1,22 @@
+#!/bin/bash
+[ "${debug}" = "true" ] && set -x
+
+function hlp(){
+echo cmd executes a predefined command in container script, serves stdin to command
+}
+
+function doc(){
+(hlp)
+cat << EOF
+EOF
+}
+
+function cmd(){
+    export SUFFIX=${CONTAINER##*-}
+    export PREFIX=${CONTAINER%-${SUFFIX}}
+    export CONTEXT=${ARGS%% *}
+    export ARGS=${ARGS#$CONTEXT }
+    /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
+}
+
+$CMD
