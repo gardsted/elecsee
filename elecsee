@@ -28,8 +28,8 @@ declare -A _ARGSPEC=(
     export ELECSEE=$(readlink -f $0)
     export ELECSEE_COMMANDS=${ELECSEE_COMMANDS:-"$(dirname ${ELECSEE})/commands"}
     export ELECSEE_SCRIPTS=${ELECSEE_SCRIPTS:-"$(dirname ${ELECSEE})/scripts"}
-    export USS={$USS:-"clint"}
-    export USO={$USO:-"donald"}
+    export USS=${USS:-clint}
+    export USO=${USO:-donald}
     export ME=${ME:-"${SUDO_USER}"}
     export logfile debug
 
