@@ -24,12 +24,13 @@ declare -A _ARGSPEC=(
     [ "${debug}" = "true" ] && logfile=/dev/stdout || logfile=/dev/null
     export CMD=${1} ; shift
     export CMD=${CMD:-hlp}
-    export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
-    export RUNSOCKET=/var/lib/elecsee/run-socket
+    export LINUX=${LINUX:-"--dist=ubuntu --release=bionic --arch=amd64"}
     export ELECSEE=$(readlink -f $0)
-    export ELECSEE_COMMANDS=$(dirname ${ELECSEE})/commands
-    export ELECSEE_SCRIPTS=$(dirname ${ELECSEE})/scripts
-    export USS=clint USO=donald ME=$SUDO_USER
+    export ELECSEE_COMMANDS=${ELECSEE_COMMANDS:-"$(dirname ${ELECSEE})/commands"}
+    export ELECSEE_SCRIPTS=${ELECSEE_SCRIPTS:-"$(dirname ${ELECSEE})/scripts"}
+    export USS={$USS:-"clint"}
+    export USO={$USO:-"donald"}
+    export ME=${ME:-"${SUDO_USER}"}
     export logfile debug
 
     export ARGSPEC=${_ARGSPEC[$CMD]}
@@ -43,21 +44,27 @@ declare -A _ARGSPEC=(
         [102]="excess arguments, call like $ELECSEE $CMD $ARGSPEC"
     )
     export _ERRSPEC
+    function errspec() {
+       echo ${_ERRSPEC[$ERRSPEC]} >&2
+       return $ERRSPEC
+    }
 
-    for a in ${ARGSPEC%\[\]} THEREST
+    ( 
+    set -x
+    [[ $ARGLEN -ge ${ARGMIN} ]] || exit 101
+    for a in ${ARGSPEC} THEREST
     do 
-        export "$a"=$1
-        shift
+        if [ "${a}" = "${a%\[\]}" ] 
+        then 
+            export "$a"=$1
+            shift
+        else
+            export "${a%\[\]}"="$*" 
+            shift $#
+            break
+        fi
     done
-    
-
-    ( [[ $ARGLEN -ge ${ARGMIN} ]] || exit 101
-    if [ "${ARGSPEC}" = "${ARGSPEC%\[\]}" ]; then
-        # fixed args
-        [ -n "${THEREST}" ] && exit 102
-        ${ELECSEE_COMMANDS}/elecsee-${CMD}
-    else
-        # varargs
-        ${ELECSEE_COMMANDS}/elecsee-${CMD}
-    fi ) || echo ${_ERRSPEC[$?]}
+    [ "${THEREST}" ] && exit 102
+    ${ELECSEE_COMMANDS}/elecsee-${CMD}
+    ) || exit $($(ERRSPEC=$? errspec))
 )
