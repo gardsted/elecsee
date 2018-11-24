@@ -27,6 +27,7 @@ declare -A _ARGSPEC=(
     export LINUX=${LINUX:-"--dist=ubuntu --release=bionic --arch=amd64"}
     export ELECSEE=$(readlink -f $0)
     export ELECSEE_COMMANDS=${ELECSEE_COMMANDS:-"$(dirname ${ELECSEE})/commands"}
+    export ELECSEE_DATA=${ELECSEE_DATA:-"$(dirname ${ELECSEE})/data"}
     export ELECSEE_SCRIPTS=${ELECSEE_SCRIPTS:-"$(dirname ${ELECSEE})/scripts"}
     export USS=${USS:-clint}
     export USO=${USO:-donald}
