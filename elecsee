@@ -13,8 +13,8 @@ declare -A _ARGSPEC=(
     [pxe]="PROTO INTERNAL EXTERNAL CONTAINER" # remove exposure
     [hst]="" # modify hostfile so it also contains running containers
     [hlp]="" # write documentation to stdout - short help version
-    [doc]="" #'write documentation to stdout - long version')
-    [cmd]="CONTAINER ARGS[]" #'write documentation to stdout - long version')
+    [doc]="" # write documentation to stdout - long version
+    [cmd]="CONTAINER ARGS[]" # execute a command in a container script
 )
 
 
@@ -51,7 +51,6 @@ declare -A _ARGSPEC=(
     }
 
     ( 
-    set -x
     [[ $ARGLEN -ge ${ARGMIN} ]] || exit 101
     for a in ${ARGSPEC} THEREST
     do 

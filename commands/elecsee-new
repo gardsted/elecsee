@@ -34,6 +34,7 @@ function model(){
     lxc-start --name ${CONTAINER}
     ${ELECSEE} net ${CONTAINER}
     CONTEXT=model /bin/bash -e ${ELECSEE_SCRIPTS}/ssh
+    ${ELECSEE} hst
     CONTEXT=model /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
 }
 
