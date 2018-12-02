@@ -27,7 +27,11 @@ cat << EOF
     done 
 )
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | ( 
+    [ "$PRIVILEGED" = "true" ] \
+    && lxc-attach --name ${CONTAINER} \
+    || sudo -u ${ME} lxc-attach --name ${CONTAINER}
+) >> ${logfile} 2>&1
 }
 
 function net(){

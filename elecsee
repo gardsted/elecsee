@@ -15,6 +15,8 @@ declare -A _ARGSPEC=(
     [hlp]="" # write documentation to stdout - short help version
     [doc]="" # write documentation to stdout - long version
     [cmd]="CONTAINER ARGS[]" # execute a command in a container script
+    [zro]="" # initializes,  necessary, but does a lot - see the documentation
+    [ssh]="CONTAINERS[]" # adds ssh users and certificates to container
 )
 
 
@@ -31,7 +33,9 @@ declare -A _ARGSPEC=(
     export ELECSEE_SCRIPTS=${ELECSEE_SCRIPTS:-"$(dirname ${ELECSEE})/scripts"}
     export USS=${USS:-clint}
     export USO=${USO:-donald}
-    export ME=${ME:-"${SUDO_USER}"}
+    export ME=${ME:-"$(whoami)"}
+    [ "${ME}" = "root" -a -n "${SUDO_USER}" ] && export ME=${SUDO_USER}
+
     export logfile debug
 
     export ARGSPEC=${_ARGSPEC[$CMD]}
@@ -43,6 +47,7 @@ declare -A _ARGSPEC=(
         [0]=''
         [101]="too few arguments, call like $ELECSEE $CMD $ARGSPEC"
         [102]="excess arguments, call like $ELECSEE $CMD $ARGSPEC"
+        [103]="do not run this as root - use sudo instead"
     )
     export _ERRSPEC
     function errspec() {
@@ -65,6 +70,7 @@ declare -A _ARGSPEC=(
         fi
     done
     [ "${THEREST}" ] && exit 102
+    [ "${ME}" = "root" ] && exit 103
     ${ELECSEE_COMMANDS}/elecsee-${CMD}
     ) || exit $($(ERRSPEC=$? errspec))
 )

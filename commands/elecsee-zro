@@ -1,0 +1,41 @@
+#!/bin/bash
+[ "${debug}" = "true" ] && set -x
+
+function hlp(){
+echo zeroes elecsee to a reasonable starting point
+}
+
+function doc(){
+(hlp)
+cat << EOF
+
+* results in You being able to create unprivileged containers
+* installs lxc
+* enables You to have 255 unprivileged containers
+* zeroes Your ~/.config/lxc directory
+* creates the elecsee-certificate (for passwordless access to uses $USO and $USS in the created containers) 
+* copies /etc/lxc/default.conf to ~/.config/lxc/default.conf
+* inserts values from /etc/subuid and /etc/subgid into ~/.config/lxc/default.conf
+EOF
+}
+
+function elecsee-cert(){
+    su -l -c 'ssh-keygen -b 2048 -t rsa -C elecsee -f ~/.ssh/elecsee' $ME
+}
+
+function zro(){
+[ -f ~/.ssh/elecsee.pub ] || (elecsee-cert)
+apt install lxc
+sed -i -e '/'$ME' .*/d' /etc/lxc/lxc-usernet
+echo $ME veth lxcbr0 255 >> /etc/lxc/lxc-usernet
+chmod -R +x /home/$ME/.local
+/home/jgj/.local
+rm -rf /home/${ME}/.config/lxc 
+mkdir -p /home/${ME}/.config/lxc
+cp /etc/lxc/default.conf /home/${ME}/.config/lxc/default.conf
+awk -F':' '/'$ME':/ {print "lxc.idmap = u 0 "$2" "$3}' /etc/subuid >> /home/${ME}/.config/lxc/default.conf
+awk -F':' '/'$ME':/ {print "lxc.idmap = g 0 "$2" "$3}' /etc/subgid >> /home/${ME}/.config/lxc/default.conf
+echo "session    optional    pam_cgfs.so -c freezer,memory,name=systemd,unified" > /etc/pam.d/elecsee
+}
+
+$CMD

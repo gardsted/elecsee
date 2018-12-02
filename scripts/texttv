@@ -1,5 +1,8 @@
 #!/bin/bash
-[ "${debug}" = "true" ] && set -x
+set -x
+[ "${DEBUG}" = "true" ] && set -x
+export PRIVILEGED=false
+
 
 function hlp(){
 echo adds texttv to model
@@ -10,11 +13,12 @@ function model(){
 (hlp)
 /bin/bash -e ${ELECSEE_SCRIPTS}/python
 (cat << EOF
-apt install -y ffmpeg ffmpeg-doc imagemagick git git-flow python3-venv
+[ "${debug}" = "true" ] && set -x
+apt install -y git git-flow python3-venv
 su -l -c 'git clone -b development https://github.com/gardsted/texttv' $USS
 su -l -c 'cd texttv && python3 -m venv venv && venv/bin/pip install -r requirements.txt' $USS
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | lxc-attach --name ${CONTAINER}
 }
 
 
@@ -22,12 +26,13 @@ EOF
 
 function instance(){
 (cat << EOF
+[ "${debug}" = "true" ] && set -x
 su -l -c 'cd texttv && git pull && venv/bin/pip install -r requirements.txt --upgrade' $USS
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | lxc-attach --name ${CONTAINER}
 
 }
 
+${CONTEXT}
 
-$CONTEXT
 

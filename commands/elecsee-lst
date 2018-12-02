@@ -12,7 +12,7 @@ function doc(){
 cat << EOF
 $(hlp)
 
-The follwing example shows calling elecsee lst and it's output
+The following example shows calling elecsee lst and it's output
 
     sudo elecsee lst
     solr-1      10.0.3.19 
@@ -21,7 +21,10 @@ EOF
 }
 
 function lst(){
-    lxc-ls --fancy -Fname,ipv4 | tail -n +2 > /dev/stdout
+    (
+        lxc-ls --fancy -Fname,ipv4,unprivileged | tail -n +2
+        sudo -u ${ME} lxc-ls --fancy -Fname,ipv4,unprivileged | tail -n +2
+    )  > /dev/stdout
 }
 
 
