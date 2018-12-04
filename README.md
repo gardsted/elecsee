@@ -1,5 +1,7 @@
 # ELECSEE
 
+WARNING: this is a development utility, it assumes that YOU are the only one on the host running unprivileged containers
+
 This is the documentation of elecsee, a utility for easing my use of lxc on ubuntu.
 
 It can do three things that I missed:
@@ -8,9 +10,11 @@ It can do three things that I missed:
 * make containers autostartable using systemd units
 * expose TCP and UDP services from containers on the primary interface of the host
 
-This is not a docker replacement. Lots can go wrong when building the containers, using bash -x $(which elecsee) should turn on full debugging
+This is not a docker replacement. Lots can go wrong when building the containers, using bash -x $(which elecsee) should turn on full debugging.
 
-Elecsee has a set of subcommands that takes parameters, but no flags - below is a summary
+The containers will be unpriviliged unless you specifically set 'export PRIVILEGED=true' in the container script.
+
+Elecsee has a set of subcommands that takes parameters, but no flags - below is a summary, but You should look into elecsee zro, if You want to run unprivileged containers using elecsee
 
 ## aut
 
@@ -124,7 +128,7 @@ ensures that all running containers are in /etc/hosts
 
 lst lists hosts+ips using lxc-ls --fancy without headers 
 
-The follwing example shows calling elecsee lst and it's output
+The following example shows calling elecsee lst and it's output
 
     sudo elecsee lst
     solr-1      10.0.3.19 
@@ -173,8 +177,32 @@ onn starts all containers on the command line
 
 this is the inverse of the command 'exp' - and is documented there
 
+## ssh
+
+**elecsee ssh** takes the following arguments: CONTAINERS[]
+
+Two users are created (donald and clint), the first one is an ordinary user, the latter has sudo password-less sudo capabilities
+
+You are equipped with a special certificate (~/.ssh/elecsee.pub) if you dont have it in advance and the container-users (donald and clint) are both given the public key for this certificate, which enables you to log in to the containers without password (which these users do not have)
+
+This script assumes that 'hst' has been called while this container is running, since it will end it's work by trying to ssh into the named container
+
 ## tua
 
 **elecsee tua** takes the following arguments: CONTAINERS[]
 
 this is the inverse of the command 'aut' - and is documented there
+
+## zro
+
+**elecsee zro** takes no arguments
+
+zeroes elecsee to a reasonable starting point
+
+* results in You being able to create unprivileged containers
+* installs lxc
+* enables You to have 255 unprivileged containers
+* zeroes Your ~/.config/lxc directory
+* creates the elecsee-certificate (for passwordless access to uses donald and clint in the created containers) 
+* copies /etc/lxc/default.conf to ~/.config/lxc/default.conf
+* inserts values from /etc/subuid and /etc/subgid into ~/.config/lxc/default.conf

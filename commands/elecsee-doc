@@ -18,6 +18,8 @@ function doc(){
 cat << EOF
 # ELECSEE
 
+WARNING: this is a development utility, it assumes that YOU are the only one on the host running unprivileged containers
+
 This is the documentation of elecsee, a utility for easing my use of lxc on ubuntu.
 
 It can do three things that I missed:
@@ -26,9 +28,11 @@ It can do three things that I missed:
 * make containers autostartable using systemd units
 * expose TCP and UDP services from containers on the primary interface of the host
 
-This is not a docker replacement. Lots can go wrong when building the containers, using bash -x \$(which elecsee) should turn on full debugging
+This is not a docker replacement. Lots can go wrong when building the containers, using bash -x \$(which elecsee) should turn on full debugging.
 
-Elecsee has a set of subcommands that takes parameters, but no flags - below is a summary
+The containers will be unpriviliged unless you specifically set 'export PRIVILEGED=true' in the container script.
+
+Elecsee has a set of subcommands that takes parameters, but no flags - below is a summary, but You should look into elecsee zro, if You want to run unprivileged containers using elecsee
 EOF
 )
 

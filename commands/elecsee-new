@@ -29,22 +29,54 @@ EOF
 
 function model(){
     export CONTAINER=${PREFIX}-model
-    lxc-destroy -f ${CONTAINER}
-    lxc-create --name ${CONTAINER} -t download -- ${LINUX}  >> ${logfile} 2>&1
-    lxc-start --name ${CONTAINER}
+    [ "$PRIVILEGED" = "true" ] && (
+        lxc-destroy -f ${CONTAINER}
+        lxc-create --name ${CONTAINER} -t download -- ${LINUX}
+        lxc-start --name ${CONTAINER}
+    ) || (
+        sudo -u ${ME} lxc-destroy -f ${CONTAINER}
+        sudo -u ${ME} lxc-create --name ${CONTAINER} -t download -- ${LINUX}
+        sudo -u ${ME} lxc-start --name ${CONTAINER}
+    )
     ${ELECSEE} net ${CONTAINER}
-    CONTEXT=model /bin/bash -e ${ELECSEE_SCRIPTS}/ssh
     ${ELECSEE} hst
-    CONTEXT=model /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
+    ${ELECSEE} ssh ${CONTAINER}
+    [ "$PRIVILEGED" = "true" ] && (
+        export CONTEXT=model
+        /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
+    ) || (
+        export CONTEXT=model
+        env sudo -Eu $ME /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
+    )
+
 }
 
 function instance(){
-    lxc-stop --name ${PREFIX}-model
-    lxc-destroy -f --name ${CONTAINER}
-    lxc-copy --name ${PREFIX}-model --newname ${CONTAINER}
-    lxc-start --name ${CONTAINER}
+    [ "$PRIVILEGED" = "true" ] && (
+        lxc-stop --name ${PREFIX}-model
+        lxc-destroy -f --name ${CONTAINER}
+        lxc-copy --name ${PREFIX}-model --newname ${CONTAINER}
+        lxc-start --name ${CONTAINER}
+    ) || (
+        sudo -u ${ME} lxc-stop --name ${PREFIX}-model
+        sudo -u ${ME} lxc-destroy -f --name ${CONTAINER}
+        sudo -u ${ME} lxc-copy --name ${PREFIX}-model --newname ${CONTAINER}
+        sudo -u ${ME} lxc-start --name ${CONTAINER}
+    )
     ${ELECSEE} net ${CONTAINER}
     ${ELECSEE} hst
+    ${ELECSEE} ssh ${CONTAINER}
+    [ "$PRIVILEGED" = "true" ] && (
+        export CONTEXT=instance 
+        /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
+        lxc-stop --name ${CONTAINER}
+        lxc-start --name ${CONTAINER}
+    ) || (
+        export CONTEXT=instance
+        env sudo -Eu ${ME} /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
+        sudo -u ${ME} lxc-stop --name ${CONTAINER}
+        sudo -u ${ME} lxc-start --name ${CONTAINER}
+    )
 }
 
 
@@ -54,16 +86,15 @@ function new(){
         export CONTAINER
         export SUFFIX=${CONTAINER##*-}
         export PREFIX=${CONTAINER%-${SUFFIX}}
+        export CONTAINER_SCRIPT=${ELECSEE_SCRIPTS}/${PREFIX}
+        export PRIVILEGED=$(grep "export PRIVILEGED=true" ${CONTAINER_SCRIPT} | cut -d= -f2)
+        export PRIVILEGED=${PRIVILEGED:-false}
         ${ELECSEE} lst | grep '^'${PREFIX}-model' ' >> ${logfile} 2>&1 || (
             echo building model
-            (model)
+            (model >> $logfile 2>&1)
         )
         echo building ${CONTAINER}
         (instance >> ${logfile} 2>&1)
-        CONTEXT=instance /bin/bash ${ELECSEE_SCRIPTS}/ssh
-        CONTEXT=instance /bin/bash ${ELECSEE_SCRIPTS}/${PREFIX}
-        lxc-stop --name ${CONTAINER}
-        lxc-start --name ${CONTAINER}
     done
 }
 

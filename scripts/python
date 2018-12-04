@@ -1,4 +1,5 @@
 #!/bin/bash
+[ "${debug}" = "true" ] && set -x
 
 function hlp(){
 cat << EOF
@@ -7,6 +8,7 @@ EOF
 }
 
 function model(){
+[ "${debug}" = "true" ] && set -x
 (hlp)
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
@@ -19,6 +21,7 @@ EOF
 
 
 function instance(){
+[ "${debug}" = "true" ] && set -x
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
 
