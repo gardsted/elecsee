@@ -18,8 +18,13 @@ EOF
 function del(){
     for CONTAINER in ${CONTAINERS}
     do
-        SUFFIX=${CONTAINER##*-}
-        [ ! "${SUFFIX}" = "model" ] && lxc-destroy --force ${CONTAINER}
+        ${ELECSEE} lst | grep '^'${CONTAINER}'.*false\W*$' && PRIVILEGED=true || PRIVILEGED=false
+        if [ "${PRIVILEGED}" = "true" ]
+        then
+            lxc-destroy -force --name ${CONTAINER}
+        else
+            sudo -u ${ME} lxc-destroy --force --name ${CONTAINER}
+        fi
     done
 }
 
