@@ -18,8 +18,13 @@ EOF
 function onn(){
     for CONTAINER in ${CONTAINERS}
     do
-        SUFFIX=${CONTAINER##*-}
-        lxc-start --name ${CONTAINER}
+        ${ELECSEE} lst | grep '^'${CONTAINER}'.*false\W*$' && PRIVILEGED=true || PRIVILEGED=false
+        if [ "${PRIVILEGED}" = "true" ]
+        then
+            lxc-start --name ${CONTAINER}
+        else
+            sudo -u ${ME} lxc-start --name ${CONTAINER}
+        fi
     done
 }
 

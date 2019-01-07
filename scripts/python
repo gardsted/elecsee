@@ -12,7 +12,7 @@ function model(){
 (hlp)
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
-apt-get --quiet install -y python3 python3-pip  python3-venv
+apt-get --quiet install -y python3 python3-pip python3-venv
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }

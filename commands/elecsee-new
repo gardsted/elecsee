@@ -65,7 +65,7 @@ function instance(){
     )
     ${ELECSEE} net ${CONTAINER}
     ${ELECSEE} hst
-    ${ELECSEE} ssh ${CONTAINER}
+    #${ELECSEE} ssh ${CONTAINER}
     [ "$PRIVILEGED" = "true" ] && (
         export CONTEXT=instance 
         /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}

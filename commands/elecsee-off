@@ -18,7 +18,13 @@ EOF
 function off(){
     for CONTAINER in ${CONTAINERS}
     do
-        lxc-stop --name ${CONTAINER}
+        ${ELECSEE} lst | grep '^'${CONTAINER}'.*false\W*$' && PRIVILEGED=true || PRIVILEGED=false
+        if [ "${PRIVILEGED}" = "true" ]
+        then
+            lxc-stop --name ${CONTAINER}
+        else
+            sudo -u ${ME} lxc-stop --name ${CONTAINER}
+        fi
     done
 }
 
