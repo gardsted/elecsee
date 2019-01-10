@@ -1,0 +1,62 @@
+#!/bin/bash
+export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
+
+
+function doc(){
+cat << EOF
+makes a cprsftp server for testing
+EOF
+}
+
+
+
+
+function model(){
+(doc)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+rm /etc/localtime
+ln -s /usr/share/zoneinfo/Europe/Copenhagen /etc/localtime
+apt update
+apt install -y ssh curl
+groupadd sftp
+mkdir -p /home/clint/cpr-files
+for i in D100312.L431101 D100313.L431101 D100315.L431101 D100317.L431101 D120127.L431101 D120128.L431101
+do
+curl https://fisheye.nspop.dk/browse/~raw,r=1592/public/components/sdm4-cprimporter/release-4.8/code/src/test/resources/data/\$i > /home/clint/cpr-files/\$i
+done
+chown -R clint:clint /home/clint/
+usermod -a -G sudo  -a -G sftp clint
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+( cat <<EOF
+
+#-------------- sshd setup -----------------
+
+Match Group sftpusers
+ChrootDirectory /data/%u
+ForceCommand internal-sftp
+EOF
+) | sudo lxc-attach $CONTAINER --  "/bin/cat >> /etc/ssh/sshd_config"
+(cat << EOF
+set -x
+systemctl restart sshd
+EOF
+) | sudo lxc-attach $CONTAINER
+
+}
+
+
+
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT
