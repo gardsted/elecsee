@@ -1,0 +1,52 @@
+#!/bin/bash
+export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
+
+
+function doc(){
+cat << EOF
+adds os2mo to container
+EOF
+}
+
+
+
+
+function model(){
+(doc)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+rm /etc/localtime
+ln -s /usr/share/zoneinfo/Europe/Copenhagen /etc/localtime
+apt update
+apt install -y git ssh git-flow
+apt install -y git ssh git-flow curl python3 python3-venv build-essential libssl-dev libffi-dev python3-dev xmlsec1 libxmlsec1-dev pkg-config
+su -l -c 'git clone https://github.com/os2mo/os2mo.git' clint
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+cd /home/clint/os2mo
+su -l -c 'git pull' clint
+cd /home/clint/os2mo/setup
+apt-key add nodesource/nodesource.gpg.key
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+cp nodesource/nodesource-8.x.list /etc/apt/sources.list.d/nodesource-8.x.list
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+apt-get update 
+apt-get install -y nodejs yarn
+su -l -c 'cd os2mo/backend && ./flask.sh build;' clint
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT
+
