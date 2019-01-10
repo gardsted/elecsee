@@ -27,7 +27,7 @@ The following example shows the creation of a solr node
 EOF
 }
 
-function model(){
+function new-model(){
     export CONTAINER=${PREFIX}-model
     [ "$PRIVILEGED" = "true" ] && (
         lxc-destroy -f ${CONTAINER}
@@ -51,7 +51,7 @@ function model(){
 
 }
 
-function instance(){
+function new-instance(){
     [ "$PRIVILEGED" = "true" ] && (
         lxc-stop --name ${PREFIX}-model
         lxc-destroy -f --name ${CONTAINER}
@@ -65,7 +65,6 @@ function instance(){
     )
     ${ELECSEE} net ${CONTAINER}
     ${ELECSEE} hst
-    #${ELECSEE} ssh ${CONTAINER}
     [ "$PRIVILEGED" = "true" ] && (
         export CONTEXT=instance 
         /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
@@ -83,18 +82,20 @@ function instance(){
 function new(){
     for CONTAINER in ${CONTAINERS}
     do
+        export CONTEXT=
         export CONTAINER
         export SUFFIX=${CONTAINER##*-}
         export PREFIX=${CONTAINER%-${SUFFIX}}
         export CONTAINER_SCRIPT=${ELECSEE_SCRIPTS}/${PREFIX}
-        export PRIVILEGED=$(grep "export PRIVILEGED=true" ${CONTAINER_SCRIPT} | cut -d= -f2)
+        # set PRIVILEGED/LINUX etc
+        . ${ELECSEE_SCRIPTS}/${PREFIX}
         export PRIVILEGED=${PRIVILEGED:-false}
         ${ELECSEE} lst | grep '^'${PREFIX}-model' ' >> ${logfile} 2>&1 || (
             echo building model
-            (model >> $logfile 2>&1)
+            (new-model >> $logfile 2>&1)
         )
         echo building ${CONTAINER}
-        (instance >> ${logfile} 2>&1)
+        (new-instance >> ${logfile} 2>&1)
     done
 }
 

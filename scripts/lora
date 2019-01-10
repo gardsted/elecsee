@@ -1,0 +1,44 @@
+#!/bin/bash
+SOLR=7.5.0
+export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
+
+
+function doc(){
+cat << EOF
+adds solr and creates a core called 'default' with the data-generated schema
+EOF
+}
+
+
+
+
+function model(){
+echo add solr-${SOLR} to model - this will take some time
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+rm /etc/localtime
+ln -s /usr/share/zoneinfo/Europe/Copenhagen /etc/localtime
+apt update
+apt install -y git ssh git-flow
+su -l -c 'git clone -b development https://github.com/magenta-aps/mox' $USS
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+su -l -c 'mox/install.sh' $USS
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT
+
+
