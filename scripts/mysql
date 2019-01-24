@@ -1,0 +1,36 @@
+#!/bin/bash
+
+function doc(){
+cat << EOF
+adds mariadb to container
+EOF
+}
+
+
+
+
+function model(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+apt update
+apt install -y mariadb-server-10.1
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT
+
+

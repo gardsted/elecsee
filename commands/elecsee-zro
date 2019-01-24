@@ -28,8 +28,8 @@ function zro(){
 apt install lxc
 sed -i -e '/'$ME' .*/d' /etc/lxc/lxc-usernet
 echo $ME veth lxcbr0 255 >> /etc/lxc/lxc-usernet
-chmod -R +x /home/$ME/.local
-/home/jgj/.local
+#mkdir /home/jgj/.local
+#chmod -R +x /home/$ME/.local
 rm -rf /home/${ME}/.config/lxc 
 mkdir -p /home/${ME}/.config/lxc
 cp /etc/lxc/default.conf /home/${ME}/.config/lxc/default.conf

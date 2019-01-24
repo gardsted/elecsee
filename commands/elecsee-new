@@ -57,11 +57,13 @@ function new-instance(){
         lxc-destroy -f --name ${CONTAINER}
         lxc-copy --name ${PREFIX}-model --newname ${CONTAINER}
         lxc-start --name ${CONTAINER}
+        echo ${CONTAINER} | lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /etc/hostname'
     ) || (
         sudo -u ${ME} lxc-stop --name ${PREFIX}-model
         sudo -u ${ME} lxc-destroy -f --name ${CONTAINER}
         sudo -u ${ME} lxc-copy --name ${PREFIX}-model --newname ${CONTAINER}
         sudo -u ${ME} lxc-start --name ${CONTAINER}
+        echo ${CONTAINER} | sudo -u ${ME} lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /etc/hostname'
     )
     ${ELECSEE} net ${CONTAINER}
     ${ELECSEE} hst
