@@ -1,0 +1,4 @@
+#!/bin/bash
+
+(. ${ELECSEE_SCRIPTS}/resolver)
+

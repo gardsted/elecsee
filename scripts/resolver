@@ -1,0 +1,35 @@
+#!/bin/bash
+[ "${debug}" = "true" ] && set -x
+
+function hlp(){
+cat << EOF
+adds resolver to the container and ensures that the correct resolver is 10.0.3.1 for elecsee
+EOF
+}
+
+function model(){
+[ "${debug}" = "true" ] && set -x
+(hlp)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+apt-get --quiet install -y resolvconf
+echo nameserver 10.0.3.1 > /etc/resolvconf/resolv.conf.d/head
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+[ "${debug}" = "true" ] && set -x
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT

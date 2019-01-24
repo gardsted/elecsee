@@ -24,11 +24,14 @@ EOF
 function instance(){
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
+sed 's/\(bind-address[[:space:]]*=\).*/\1 0.0.0.0/g' -i /etc/mysql/mariadb.conf.d/50-server.cnf 
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
+# CREATE USER 'clint'@'10.0.3.%' IDENTIFIED BY 'password';
+# GRANT ALL PRIVILEGES ON *.* TO 'clint'@'10.0.3.%' WITH GRANT OPTION;
 
 
 $CONTEXT

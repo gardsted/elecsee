@@ -43,9 +43,11 @@ function new-model(){
     ${ELECSEE} ssh ${CONTAINER}
     [ "$PRIVILEGED" = "true" ] && (
         export CONTEXT=model
+        /bin/bash -e ${ELECSEE_SCRIPTS}/base
         /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
     ) || (
         export CONTEXT=model
+        env sudo -Eu $ME /bin/bash -e ${ELECSEE_SCRIPTS}/base
         env sudo -Eu $ME /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
     )
 
