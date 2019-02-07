@@ -45,7 +45,7 @@ EOF
     cat ~/.ssh/elecsee.pub | sudo -u ${ME} lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USO'/.ssh/authorized_keys' 
     cat ~/.ssh/elecsee.pub | sudo -u ${ME} lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USS'/.ssh/authorized_keys'
 )
-su -l -c "ssh-keygen -f ~/.ssh/known_hosts -R ${CONTAINER}" $ME >> ${logfile} 2>&1
+su -l -c "ssh-keygen -f /home/${ME}/.ssh/known_hosts -R ${CONTAINER}" $ME >> ${logfile} 2>&1
 su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USS@${CONTAINER} :" $ME >> ${logfile} 2>&1
 su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USO@${CONTAINER} :" $ME >> ${logfile} 2>&1
 

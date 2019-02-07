@@ -29,6 +29,8 @@ function hst(){
     ${ELECSEE} lst | grep -v ' - ' | awk '{print $2 "\t" $1}' >> ${HOSTS}.elecsee
     cat ${HOSTS}.base >> ${HOSTS}.elecsee
     mv ${HOSTS}.elecsee ${HOSTS}
+    pkill -HUP -f dnsmasq
+
 }
 
 $CMD

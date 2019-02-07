@@ -2,18 +2,40 @@
 SOLR=7.5.0
 export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
 
-
 function doc(){
 cat << EOF
-adds solr and creates a core called 'default' with the data-generated schema
+adds lora to model and sets up simple service
 EOF
+}
+
+function autostart-lora(){
+# man systemd.exec
+(cat << EOF
+[Unit]
+Description=${USS}s lora.service
+
+[Service]
+User=$USS
+Type=simple
+ExecStart=/bin/sh -c 'exec /home/${USS}/mox/python-env/bin/python3 /home/${USS}/mox/python-env/bin/mox run -h 0.0.0.0 >> /home/${USS}/log.txt 2>&1'
+
+[Install]
+WantedBy=multi-user.target
+EOF
+) | lxc-attach --name ${CONTAINER} /bin/sh -- -c "/bin/cat >> /etc/systemd/system/lora.service" 
+(cat << EOF
+systemctl enable lora.service
+systemctl start lora.service
+systemctl status lora.service
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
 
 
 function model(){
-echo add solr-${SOLR} to model - this will take some time
+echo add lora to model - this will take some time
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
 rm /etc/localtime
@@ -34,11 +56,8 @@ function instance(){
 su -l -c 'mox/install.sh' $USS
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+(autostart-lora)
 }
 
 
-
-
 $CONTEXT
-
-
