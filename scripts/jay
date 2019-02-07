@@ -1,0 +1,58 @@
+#!/bin/bash
+
+function doc(){
+cat << EOF
+adds a little jay to the container
+EOF
+}
+
+
+function model(){
+(. ${ELECSEE_SCRIPTS}/python)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+apt-get --quiet install -y curl wget git git-flow 
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaypage_rsa' $USS
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/solrpage_rsa' $USS
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jayselectors_rsa' $USS
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaydux_rsa' $USS
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaywalker_rsa' $USS
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function write-github(){
+cat << EOF
+    mkdir $1
+    cd $1
+    git init
+    git remote add origin git@github.com:gardsted/$1.git; 
+    git config core.sshCommand "ssh -i ~/.ssh/$1_rsa -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no"
+    git pull origin development
+    git pull origin master
+    git checkout development
+    python3 -m venv venv
+    venv/bin/pip install -r requirements.txt
+EOF
+
+}
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+sudo su -l -c '($(write-github jayselectors))' $USS
+sudo su -l -c '($(write-github jaypage))' $USS
+sudo su -l -c '($(write-github solrpage))' $USS
+sudo su -l -c '($(write-github jaywalker))' $USS
+sudo su -l -c '($(write-github jaydux))' $USS
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT
