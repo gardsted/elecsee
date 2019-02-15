@@ -71,11 +71,13 @@ function new-instance(){
     ${ELECSEE} hst
     [ "$PRIVILEGED" = "true" ] && (
         export CONTEXT=instance 
+        /bin/bash -e ${ELECSEE_SCRIPTS}/base
         /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
         lxc-stop --name ${CONTAINER}
         lxc-start --name ${CONTAINER}
     ) || (
         export CONTEXT=instance
+        env sudo -Eu $ME /bin/bash -e ${ELECSEE_SCRIPTS}/base
         env sudo -Eu ${ME} /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
         sudo -u ${ME} lxc-stop --name ${CONTAINER}
         sudo -u ${ME} lxc-start --name ${CONTAINER}

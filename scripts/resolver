@@ -25,6 +25,9 @@ function instance(){
 [ "${debug}" = "true" ] && set -x
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
+hostname ${CONTAINER}
+sed -i 's/${PREFIX}-model/${CONTAINER}/g' /etc/hosts
+echo ${CONTAINER} > /etc/hostname
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }

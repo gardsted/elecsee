@@ -1,0 +1,45 @@
+#!/bin/bash
+
+function doc(){
+cat << EOF
+adds salt master to the container
+EOF
+}
+
+
+function model(){
+(. ${ELECSEE_SCRIPTS}/python)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+apt install -y salt-master 
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+# then
+# sudo salt '*' cmd.run 'wall hello world'
+# sudo salt -L saltmi-1 cmd.run 'wall hello world'
+# sudo salt '*' cmd.run_stderr "ls -l | awk '{print \$2}'"
+# 
+# State x.sls: what is installed when minion has gotten the 'x'
+# Pillar: configuration for hosts
+#
+# Several states can be incluenced by same pillar - i think there is a mask inside the pillar
+#
+#
+#
+#
+
+
+
+$CONTEXT

@@ -1,5 +1,5 @@
 #!/bin/bash
-SOLR=7.5.0
+SOLR=7.7.0
 
 
 function doc(){
@@ -59,6 +59,8 @@ su -l -c 'solr-${SOLR}/bin/solr start' $USO
 su -l -c 'solr-${SOLR}/bin/solr create -c default' $USO
 su -l -c 'solr-${SOLR}/bin/solr create -c text' $USO
 su -l -c 'solr-${SOLR}/bin/solr create -c link' $USO
+su -l -c 'solr-${SOLR}/bin/solr create -c os2mo' $USO
+su -l -c 'solr-${SOLR}/bin/solr create -c lora' $USO
 su -l -c 'solr-${SOLR}/bin/solr stop' $USO
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
