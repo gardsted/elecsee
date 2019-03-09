@@ -23,7 +23,7 @@ groupadd sftp
 mkdir -p /home/clint/cpr-files
 for i in D100312.L431101 D100313.L431101 D100315.L431101 D100317.L431101 D120127.L431101 D120128.L431101
 do
-curl https://fisheye.nspop.dk/browse/~raw,r=1592/public/components/sdm4-cprimporter/release-4.8/code/src/test/resources/data/\$i > /home/clint/cpr-files/\$i
+curl https://raw.githubusercontent.com/trifork/sdm4-cprimporter/master/src/test/resources/data/\$i > /home/clint/cpr-files/\$i
 done
 chown -R clint:clint /home/clint/
 usermod -a -G sudo  -a -G sftp clint

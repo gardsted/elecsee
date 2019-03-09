@@ -35,7 +35,6 @@ do
     else
         echo "    this is the inverse of the command '"$lix"' - and is documented there"
     fi
-    
 done
 }
 

@@ -1,0 +1,37 @@
+#!/bin/bash
+
+function doc(){
+cat << EOF
+adds salt minion to the container
+EOF
+}
+
+
+function model(){
+(. ${ELECSEE_SCRIPTS}/python)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+rm /etc/ssh/*_key*
+ssh-keygen -A
+apt install -y salt-minion
+systemctl stop salt-minion
+echo ${CONTAINER}  > /etc/salt/minion_id
+sed -i 's/^#* *master: .*$/master: saltma-1/' /etc/salt/minion
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT

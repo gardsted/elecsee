@@ -38,15 +38,32 @@ function model(){
 echo add solr-${SOLR} to model - this will take some time
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
-apt-get --quiet install -y curl wget openjdk-8-jre-headless
+apt-get --quiet install -y curl wget openjdk-8-jre-headless git git-flow
 wget http://apache.40b.nl/lucene/solr/${SOLR}/solr-${SOLR}.tgz 
 chown $USO:$USO solr-${SOLR}.tgz
 mv solr-${SOLR}.tgz /home/$USO
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/mox_solr_rsa' $USS
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+(. ${ELECSEE_SCRIPTS}/python)
 }
 
 
+function write-github(){
+cat << EOF
+    mkdir $1
+    cd $1
+    git init
+    git remote add origin git@github.com:jgj-magenta-aps/$1.git; 
+    git config core.sshCommand "ssh -i ~/.ssh/$1_rsa -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no"
+    git pull origin development
+    git pull origin master
+    git checkout development
+    python3 -m venv venv
+    venv/bin/pip install -r requirements.txt
+EOF
+
+}
 
 
 function instance(){
@@ -55,12 +72,11 @@ function instance(){
 apt-get --quiet install -y lsof
 su -l -c 'tar -zxvf solr-${SOLR}.tgz' $USO
 su -l -c 'rm solr-${SOLR}.tgz' $USO
+sudo su -l -c '($(write-github mox_solr))' $USS
 su -l -c 'solr-${SOLR}/bin/solr start' $USO
 su -l -c 'solr-${SOLR}/bin/solr create -c default' $USO
-su -l -c 'solr-${SOLR}/bin/solr create -c text' $USO
-su -l -c 'solr-${SOLR}/bin/solr create -c link' $USO
-su -l -c 'solr-${SOLR}/bin/solr create -c os2mo' $USO
-su -l -c 'solr-${SOLR}/bin/solr create -c lora' $USO
+su -l -c 'solr-${SOLR}/bin/solr create -c os2mo-employee' $USO
+su -l -c 'solr-${SOLR}/bin/solr create -c os2mo-orgunit' $USO
 su -l -c 'solr-${SOLR}/bin/solr stop' $USO
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1

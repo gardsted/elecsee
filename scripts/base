@@ -1,4 +1,5 @@
 #!/bin/bash
 
+(. ${ELECSEE_SCRIPTS}/aptifier)
 (. ${ELECSEE_SCRIPTS}/resolver)
 

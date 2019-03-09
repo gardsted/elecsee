@@ -3,7 +3,7 @@
 
 function hlp(){
 cat << EOF
-adds resolver to the container and ensures that the correct resolver is 10.0.3.1 for elecsee
+ensures that elecsee uses a danish mirror for archive.ubuntu.com
 EOF
 }
 
@@ -12,8 +12,9 @@ function model(){
 (hlp)
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
-apt-get --quiet install -y resolvconf
-echo nameserver 10.0.3.1 > /etc/resolvconf/resolv.conf.d/head
+apt install -y sed
+sed -i 's#http://archive.ubuntu.com/ubuntu#http://mirror.netsite.dk/ubuntu/archive/#' /etc/apt/sources.list
+apt update
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
@@ -25,9 +26,6 @@ function instance(){
 [ "${debug}" = "true" ] && set -x
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
-hostname ${CONTAINER}
-sed -i 's/${PREFIX}-model/${CONTAINER}/g' /etc/hosts
-echo ${CONTAINER} > /etc/hostname
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
