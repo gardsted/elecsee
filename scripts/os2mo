@@ -8,6 +8,20 @@ adds os2mo to container
 EOF
 }
 
+chrome_install(){
+cat << EOF
+# doesn't cut it
+apt install -y \
+    libasound2 libnspr4 libnss3 libxss1 xdg-utils unzip
+apt-get -f install
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+dpkg -i google-chrome*.deb
+wget https://chromedriver.storage.googleapis.com/2.45/chromedriver_linux64.zip
+unzip chromedriver_linux64.zip
+mv chromedriver /usr/bin/chromedriver
+chmod +x /usr/bin/chromedriver
+EOF
+}
 
 function model(){
 (doc)
@@ -16,9 +30,13 @@ function model(){
 rm /etc/localtime
 ln -s /usr/share/zoneinfo/Europe/Copenhagen /etc/localtime
 apt update
-apt install -y git ssh git-flow jq
-apt install -y curl python3 python3-venv build-essential libssl-dev libffi-dev python3-dev xmlsec1 libxmlsec1-dev pkg-config
-su -l -c 'git clone https://github.com/os2mo/os2mo.git' clint
+apt install -y \
+    git ssh git-flow jq \
+    curl python3 python3-venv build-essential \
+    libssl-dev libffi-dev python3-dev xmlsec1 \
+    libxmlsec1-dev pkg-config libxmlsec1-openssl \
+    postgresql-contrib postgresql
+su -l -c 'git clone -b development https://github.com/os2mo/os2mo.git' clint
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
@@ -29,15 +47,14 @@ EOF
 function instance(){
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
-cd /home/clint/os2mo
-su -l -c 'git pull' $USS
-cd /home/clint/os2mo/setup
+su -l -c '(cd /home/$USS/os2mo; git pull)' $USS
+cd /home/$USS/os2mo/setup
 apt-key add nodesource/nodesource.gpg.key
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 cp nodesource/nodesource-8.x.list /etc/apt/sources.list.d/nodesource-8.x.list
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 apt-get update 
-apt-get install -y nodejs yarn jq
+apt-get install -y nodejs yarn jq --allow-unauthenticated
 su -l -c 'cd os2mo/backend && ./flask.sh build;' $USS
 su -l -c 'jq '\''.LORA_URL="http://lora-${SUFFIX}:5000/"'\'' /home/$USS/os2mo/setup/mora-example.json > /home/$USS/os2mo/setup/mora.json' $USS
 EOF

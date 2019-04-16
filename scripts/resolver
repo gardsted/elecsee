@@ -12,7 +12,7 @@ function model(){
 (hlp)
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
-apt-get --quiet install -y resolvconf
+apt-get --quiet install -y resolvconf dnsutils
 echo nameserver 10.0.3.1 > /etc/resolvconf/resolv.conf.d/head
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
