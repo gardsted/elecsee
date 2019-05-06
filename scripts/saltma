@@ -1,4 +1,5 @@
 #!/bin/bash
+export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
 
 function doc(){
 cat << EOF
@@ -11,6 +12,9 @@ function model(){
 (. ${ELECSEE_SCRIPTS}/python)
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
+wget -O - https://repo.saltstack.com/py3/ubuntu/16.04/amd64/2019.2/SALTSTACK-GPG-KEY.pub | sudo apt-key add -
+echo deb http://repo.saltstack.com/py3/ubuntu/16.04/amd64/2019.2 xenial main  >> /etc/apt/sources.list.d/saltstack.list
+sudo apt-get update
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
@@ -21,6 +25,7 @@ EOF
 function instance(){
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
+sudo apt-get update
 apt install -y salt-master 
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
