@@ -1,0 +1,101 @@
+#!/bin/bash SOLR=7.5.0
+export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
+
+function doc(){
+cat << EOF
+adds lora to model and sets up simple service
+EOF
+}
+
+function autostart-lora(){
+# man systemd.exec
+(cat << EOF
+[Unit]
+Description=${USS}s lora.service
+
+[Service]
+User=$USS
+Type=simple
+Environment="DB_STRUCTURE_EXTENSIONS=/home/clint/os2mo/backend/mora/db_extensions.json"
+ExecStart=/bin/sh -c 'exec /home/${USS}/mox/python-env/bin/python3 -m oio_rest run -h 0.0.0.0 >> /home/${USS}/lora.log 2>&1'
+
+[Install]
+WantedBy=multi-user.target
+EOF
+) | lxc-attach --name ${CONTAINER} /bin/sh -- -c "/bin/cat >> /etc/systemd/system/lora.service" 
+(cat << EOF
+systemctl enable lora.service
+systemctl start lora.service
+systemctl status lora.service
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+function autostart-os2mo(){
+# man systemd.exec
+(cat << EOF
+[Unit]
+Description=${USS}s os2mo.service
+
+[Service]
+User=$USS
+Type=simple
+Environment="DB_STRUCTURE_EXTENSIONS=/home/clint/os2mo/backend/mora/db_extensions.json"
+ExecStart=/bin/sh -c 'exec /home/${USS}/os2mo/backend/flask.sh run -h 0.0.0.0 -p 4000 >> /home/${USS}/os2mo.log 2>&1'
+
+[Install]
+WantedBy=multi-user.target
+EOF
+) | lxc-attach --name ${CONTAINER} /bin/sh -- -c "/bin/cat >> /etc/systemd/system/os2mo.service" 
+(cat << EOF
+systemctl enable os2mo.service
+systemctl start os2mo.service
+systemctl status os2mo.service
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+function model(){
+echo add lora to model - this will take some time
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+rm /etc/localtime
+ln -s /usr/share/zoneinfo/Europe/Copenhagen /etc/localtime
+apt update
+apt install -y git ssh git-flow curl jq build-essential libssl-dev libffi-dev python3-dev xmlsec1 libxmlsec1-dev
+su -l -c 'git clone -b development https://github.com/magenta-aps/mox' $USS
+su -l -c 'git clone -b development https://github.com/os2mo/os2mo.git' $USS
+su -l -c 'DB_STRUCTURE_EXTENSIONS=/home/clint/os2mo/backend/mora/db_extensions.json mox/install.sh' $USS
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+
+su -l -c 'cd mox && git pull' $USS
+su -l -c 'cd os2mo && git pull' $USS
+su -l -c 'mox/install.sh' $USS
+apt-key add /home/$USS/os2mo/setup/nodesource/nodesource.gpg.key
+cp /home/$USS/os2mo/setup/nodesource/nodesource-8.x.list /etc/apt/sources.list.d/nodesource-8.x.list
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+apt-get update --allow-unauthenticated 
+apt-get install -y --allow-unauthenticated yarn nodejs jq
+su -l -c 'cd os2mo/backend && ./flask.sh build;' $USS
+su -l -c 'jq '\''.LORA_URL="http://localhost:5000/"'\'' /home/$USS/os2mo/setup/mora-example.json > /home/$USS/os2mo/setup/mora.json' $USS
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+(autostart-lora)
+(autostart-os2mo)
+}
+
+
+
+$CONTEXT

@@ -1,0 +1,60 @@
+#!/bin/bash
+export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
+
+
+function modify-config-for-docker(){
+    ${ELECSEE} off ${CONTAINER}
+    echo lxc.apparmor.profile = unconfined >> /var/lib/lxc/${CONTAINER}/config
+    echo lxc.cgroup.devices.allow = a >> /var/lib/lxc/${CONTAINER}/config
+    ${ELECSEE} onn ${CONTAINER}
+    ${ELECSEE} net ${CONTAINER}
+}
+
+function doc(){
+(cat << EOF
+makes container suitable for running docker-containers inside. Both users ($USO and $USS) are added to the docker group, so sudo is not necessary for running docker commands.
+currently dependent of network management using net, hss, exp and aut
+wget -O - https://repo.saltstack.com/py3/ubuntu/16.04/amd64/2019.2/SALTSTACK-GPG-KEY.pub | sudo apt-key add -
+echo deb http://repo.saltstack.com/py3/ubuntu/16.04/amd64/2019.2 xenial main  >> /etc/apt/sources.list.d/saltstack.list
+EOF
+}
+
+function hlp(){
+echo install docker with group membership to both $USO and $USS
+}
+
+function model(){
+(hlp)
+(modify-config-for-docker)
+(cat << EOF
+apt-get install -y docker.io
+usermod -aG docker ${USS}
+usermod -aG docker ${USO}
+apt-get purge apparmor
+rm /etc/ssh/*_key*
+ssh-keygen -A
+sudo apt-get update
+apt install -y salt-minion
+systemctl stop salt-minion
+echo ${CONTAINER}  > /etc/salt/minion_id
+sed -i 's/^#* *master: .*$/master: saltma-1/' /etc/salt/minion
+
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+(cat << EOF
+echo
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT
+
