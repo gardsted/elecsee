@@ -1,5 +1,7 @@
 #!/bin/bash SOLR=7.5.0
 export LINUX="--dist=ubuntu --release=xenial --arch=amd64"
+export LORA_PORT=8080  # consistent with default values
+export MORA_PORT=5000  # consistent with frontend dev server
 
 function doc(){
 cat << EOF
@@ -17,7 +19,7 @@ Description=${USS}s lora.service
 User=$USS
 Type=simple
 Environment="DB_STRUCTURE_EXTENSIONS=/home/clint/os2mo/backend/mora/db_extensions.json"
-ExecStart=/bin/sh -c 'exec /home/${USS}/mox/python-env/bin/python3 -m oio_rest run -h 0.0.0.0 >> /home/${USS}/lora.log 2>&1'
+ExecStart=/bin/sh -c 'exec /home/${USS}/mox/python-env/bin/python3 -m oio_rest run -h 0.0.0.0 -p ${LORA_PORT} >> /home/${USS}/lora.log 2>&1'
 
 [Install]
 WantedBy=multi-user.target
@@ -41,7 +43,7 @@ Description=${USS}s os2mo.service
 User=$USS
 Type=simple
 Environment="DB_STRUCTURE_EXTENSIONS=/home/clint/os2mo/backend/mora/db_extensions.json"
-ExecStart=/bin/sh -c 'exec /home/${USS}/os2mo/backend/flask.sh run -h 0.0.0.0 -p 4000 >> /home/${USS}/os2mo.log 2>&1'
+ExecStart=/bin/sh -c 'exec /home/${USS}/os2mo/backend/flask.sh run -h 0.0.0.0 -p ${MORA_PORT} >> /home/${USS}/os2mo.log 2>&1'
 
 [Install]
 WantedBy=multi-user.target
@@ -55,6 +57,51 @@ EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
+function runner-script(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+echo husk at køre mox/install.sh
+sudo systemctl stop lora 2>/dev/null # mine - forget about it
+sudo systemctl restart postgresql
+export DB_STRUCTURE_EXTENSIONS=/home/clint/os2mo/backend/mora/db_extensions.json
+
+if [ "\$1" = "init" ]
+then
+    # -- get environment
+    export DB_PORT=5432
+    source <(sed "s/\(^[A-Z_]*=\)/export \1/" os2mo/docker/*.env)
+
+    # -- set up lora database
+    sudo -u postgres dropdb \$DB_NAME 
+    sudo -u postgres dropuser \$DB_USER
+    for DBSH in mox/docker/postgres-initdb.d/*; do
+        cat \$DBSH
+        sudo -E su -c \$DBSH postgres
+    done
+
+    mox/python-env/bin/python -m oio_rest initdb
+
+    # -- set up session and donfiguration database
+    for DBSH in os2mo/docker/postgres-initdb.d/*; do
+        cat \$DBSH
+        sudo -E su -c \$DBSH postgres
+    done
+
+    # -- if supplied - load data into lora database
+    if [ -n "\$2" ]
+    then
+        psql -Umox --host localhost mox <\$2
+    fi
+fi
+sudo systemctl start lora 2>/dev/null # mine - forget about it 
+EOF
+) | lxc-attach --name ${CONTAINER} /bin/sh -- -c "/bin/cat >> /home/clint/runner.sh" 
+(cat << EOF
+chmod 755 /home/clint/runner.sh
+chown clint:clint /home/clint/runner.sh
+EOF
+) | lxc-attach --name ${CONTAINER} >> \${logfile} 2>&1
+}
 
 
 function model(){
@@ -63,11 +110,11 @@ echo add lora to model - this will take some time
 [ "${debug}" = "true" ] && set -x
 rm /etc/localtime
 ln -s /usr/share/zoneinfo/Europe/Copenhagen /etc/localtime
-apt update
+apt-get -qq update
+apt-get -qq upgrade
 apt install -y git ssh git-flow curl jq build-essential libssl-dev libffi-dev python3-dev xmlsec1 libxmlsec1-dev
 su -l -c 'git clone -b development https://github.com/magenta-aps/mox' $USS
 su -l -c 'git clone -b development https://github.com/os2mo/os2mo.git' $USS
-su -l -c 'DB_STRUCTURE_EXTENSIONS=/home/clint/os2mo/backend/mora/db_extensions.json mox/install.sh' $USS
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
@@ -81,19 +128,26 @@ function instance(){
 
 su -l -c 'cd mox && git pull' $USS
 su -l -c 'cd os2mo && git pull' $USS
-su -l -c 'mox/install.sh' $USS
+su -l -c 'DB_STRUCTURE_EXTENSIONS=/home/clint/os2mo/backend/mora/db_extensions.json /home/clint/mox/install.sh' $USS
 apt-key add /home/$USS/os2mo/setup/nodesource/nodesource.gpg.key
 cp /home/$USS/os2mo/setup/nodesource/nodesource-8.x.list /etc/apt/sources.list.d/nodesource-8.x.list
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 apt-get update --allow-unauthenticated 
 apt-get install -y --allow-unauthenticated yarn nodejs jq
+### < mending os2mo install
+#su -l -c 'echo psycopg2 >> os2mo/backend/requirements.txt' $USS
+#su -l -c 'echo click >> os2mo/backend/requirements.txt' $USS
+#apt-get install -y libpq-dev
+#su -l -c 'cd os2mo/backend && python3 -m venv venv && ./venv/bin/pip install -r requirements.txt' $USS
+### />
 su -l -c 'cd os2mo/backend && ./flask.sh build;' $USS
-su -l -c 'jq '\''.LORA_URL="http://localhost:5000/"'\'' /home/$USS/os2mo/setup/mora-example.json > /home/$USS/os2mo/setup/mora.json' $USS
+su -l -c 'jq '\''.LORA_URL="http://localhost:'${LORA_PORT}'/"'\'' /home/$USS/os2mo/setup/mora-example.json > /home/$USS/os2mo/setup/mora.json' $USS
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 (autostart-lora)
 (autostart-os2mo)
+(runner-script)
 }
 
 

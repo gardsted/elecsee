@@ -1,0 +1,34 @@
+#!/bin/bash
+# has debug, logfile, container, prefix and suffix
+[ "${debug}" = "true" ] && set -x
+
+function hlp(){
+cat << EOF
+makes an archiving mother
+EOF
+}
+
+function model(){
+(hlp)
+(. ${ELECSEE_SCRIPTS}/python)
+(. ${ELECSEE_SCRIPTS}/mysql)
+(. ${ELECSEE_SCRIPTS}/oracle-java)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+:
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+:
+}
+
+
+
+
+$CONTEXT
+
