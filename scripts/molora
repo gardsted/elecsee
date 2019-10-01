@@ -18,7 +18,7 @@ Description=${USS}s lora.service
 [Service]
 User=$USS
 Type=simple
-Environment="DB_STRUCTURE_EXTENSIONS=/home/clint/os2mo/backend/mora/db_extensions.json"
+Environment="MOX_USER_CONFIG_PATH=/home/clint/mox_user_config.toml"
 ExecStart=/bin/sh -c 'exec /home/${USS}/mox/python-env/bin/python3 -m oio_rest run -h 0.0.0.0 -p ${LORA_PORT} >> /home/${USS}/lora.log 2>&1'
 
 [Install]
@@ -59,20 +59,28 @@ EOF
 
 function runner-script(){
 (cat << EOF
-[ "${debug}" = "true" ] && set -x
-echo husk at køre mox/install.sh
+[ -f ~/mox-installed ] || mox/install.sh > ~/mox-installed
+export DB_STRUCTURE_EXTENSIONS=/home/clint/os2mo/backend/mora/db_extensions.json
+export MOX_USER_CONFIG_PATH=/home/clint/mox_user_config.toml
+
+(cat << EOMOXUSERCONFIG
+[db_extensions]
+path = "\$DB_STRUCTURE_EXTENSIONS"
+EOMOXUSERCONFIG
+) > \${MOX_USER_CONFIG_PATH}
+
 sudo systemctl stop lora 2>/dev/null # mine - forget about it
 sudo systemctl restart postgresql
-export DB_STRUCTURE_EXTENSIONS=/home/clint/os2mo/backend/mora/db_extensions.json
 
 if [ "\$1" = "init" ]
 then
+    export MOX_USER_CONFIG_PATH=~/mox_user_config.toml
     # -- get environment
     export DB_PORT=5432
     source <(sed "s/\(^[A-Z_]*=\)/export \1/" os2mo/docker/*.env)
 
     # -- set up lora database
-    sudo -u postgres dropdb \$DB_NAME 
+    sudo -u postgres dropdb \$DB_NAME
     sudo -u postgres dropuser \$DB_USER
     for DBSH in mox/docker/postgres-initdb.d/*; do
         cat \$DBSH
@@ -82,10 +90,16 @@ then
     mox/python-env/bin/python -m oio_rest initdb
 
     # -- set up session and donfiguration database
+    sudo -u postgres dropdb \$CONF_DB_NAME
+    sudo -u postgres dropuser \$CONF_DB_USER
+    sudo -u postgres dropdb \$SESSIONS_DB_NAME
+    sudo -u postgres dropuser \$SESSIONS_DB_USER
     for DBSH in os2mo/docker/postgres-initdb.d/*; do
         cat \$DBSH
         sudo -E su -c \$DBSH postgres
     done
+
+    os2mo/backend/flask.sh initdb
 
     # -- if supplied - load data into lora database
     if [ -n "\$2" ]
