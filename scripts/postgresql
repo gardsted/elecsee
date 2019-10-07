@@ -1,0 +1,40 @@
+#!/bin/bash
+
+function doc(){
+cat << EOF
+adds postgresql to container
+EOF
+}
+
+
+
+function model(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+apt-get update
+apt-get install -y postgresql postgresql-contrib
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+
+export HBA=\$(find /etc -name 'pg_hba.conf')
+sed -i '/postgres/a local\tall\t\t'${USS}'\t\t\t\t\tident' \${HBA}
+sed -i '/postgres/a hostssl\tall\t\t'${USS}'\t\tsamenet\t\t\tident' \${HBA}
+export PG_CONF=\$(find /etc -name 'postgresql.conf')
+sed -i  '/#listen_addresses/alisten_addresses = '\\'*\\' \${PG_CONF}
+su -c 'psql -c"create user ${USS};"' postgres
+su -c 'psql -c"create database ${USS} with owner ${USS};"' postgres
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+$CONTEXT
+
+

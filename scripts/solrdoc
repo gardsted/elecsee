@@ -1,0 +1,43 @@
+#!/bin/bash
+[ "${debug}" = "true" ] && set -x
+
+function hlp(){
+cat << EOF
+makes a solr-doc-builder-machine - lazy-deliver docs
+EOF
+}
+
+function model(){
+[ "${debug}" = "true" ] && set -x
+(hlp)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+sudo apt-get -y --quiet install ant git git-flow
+sudo gem install jekyll --force --version 3.5.0
+sudo gem install asciidoctor --force --version 1.5.6.2
+sudo install jekyll-asciidoc
+sudo gem install pygments.rb
+sudo gem install slim --force --version 3.0.9
+
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+[ "${debug}" = "true" ] && set -x
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+git clone https://github.com/apache/lucene-solr/tree/master/solr/solr-ref-guide
+cd solr-ref-guide
+ant build-site
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT

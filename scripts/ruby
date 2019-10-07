@@ -1,0 +1,35 @@
+#!/bin/bash
+[ "${debug}" = "true" ] && set -x
+
+function hlp(){
+cat << EOF
+adds ruby to the model
+EOF
+}
+
+function model(){
+[ "${debug}" = "true" ] && set -x
+(hlp)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+apt-get --quiet install -y ruby-full ruby-gem
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+[ "${debug}" = "true" ] && set -x
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+$CONTEXT
