@@ -1,0 +1,50 @@
+#!/bin/bash
+export LINUX="--dist=ubuntu --release=bionic --arch=amd64"
+
+
+function doc(){
+cat << EOF
+makes a ssh / sftp server for testing
+EOF
+}
+
+function model(){
+(doc)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+rm /etc/localtime
+ln -s /usr/share/zoneinfo/Europe/Copenhagen /etc/localtime
+apt update
+apt install -y ssh curl
+groupadd sftpusers
+chown -R clint:clint /home/clint/
+usermod -a -G sudo  -a -G sftpusers clint
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+( cat <<EOF
+
+#-------------- sshd setup -----------------
+
+Match Group sftpusers
+ChrootDirectory /data/%u
+ForceCommand internal-sftp
+EOF
+) | sudo lxc-attach $CONTAINER --  "/bin/cat >> /etc/ssh/sshd_config"
+(cat << EOF
+set -x
+systemctl restart sshd
+EOF
+) | sudo lxc-attach $CONTAINER
+
+}
+
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+$CONTEXT
