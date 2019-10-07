@@ -17,6 +17,13 @@ sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jayrnnr_rsa' $USS
 sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jayfolr_rsa' $USS
 sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaysolr_rsa' $USS
 sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jayviwr_rsa' $USS
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaynews_rsa' $USS
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaytwit_rsa' $USS
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaygeon_rsa' $USS
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaypern_rsa' $USS
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jayprxy_rsa' $USS
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaysqla_rsa' $USS
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaymaga_rsa' $USS
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
@@ -26,7 +33,7 @@ EOF
 
 function write-github(){
 cat << EOF
-    mkdir $1
+    mkdir $1 || exit
     cd $1
     git init
     git remote add origin git@github.com:gardsted/$1.git; 
@@ -49,6 +56,13 @@ sudo su -l -c '($(write-github jayrnnr))' $USS
 sudo su -l -c '($(write-github jayfolr))' $USS
 sudo su -l -c '($(write-github jaysolr))' $USS
 sudo su -l -c '($(write-github jayviwr))' $USS
+sudo su -l -c '($(write-github jaynews))' $USS
+sudo su -l -c '($(write-github jaytwit))' $USS
+sudo su -l -c '($(write-github jaygeon))' $USS
+sudo su -l -c '($(write-github jaypern))' $USS
+sudo su -l -c '($(write-github jayprxy))' $USS
+sudo su -l -c '($(write-github jaysqla))' $USS
+sudo su -l -c '($(write-github jaymaga))' $USS
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
