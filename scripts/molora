@@ -75,7 +75,7 @@ sudo systemctl restart postgresql
 if [ "\$1" = "init" ]
 then
     export MOX_USER_CONFIG_PATH=~/mox_user_config.toml
-    # -- get environment
+    source <(sed "s/\(^[A-Z_]*=\)/export \1/" os2mo/dev-environment/*.env)
     export DB_PORT=5432
     source <(sed "s/\(^[A-Z_]*=\)/export \1/" os2mo/docker/*.env)
 
