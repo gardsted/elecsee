@@ -1,0 +1,60 @@
+#!/bin/bash
+
+function doc(){
+cat << EOF
+adds a little mmcse to the container
+EOF
+}
+
+function modify-config-for-alsa(){
+    ${ELECSEE} off ${CONTAINER}
+    # untested
+    echo lxc.cgroup.devices.allow = c 116:* rwm >> /var/lib/lxc/${CONTAINER}/config
+    echo lxc.mount.entry = /dev/snd dev/snd none bind,optional,create=dir >> /var/lib/lxc/${CONTAINER}/config
+    ${ELECSEE} onn ${CONTAINER}
+    ${ELECSEE} net ${CONTAINER}
+}
+
+function model(){
+(. ${ELECSEE_SCRIPTS}/python)
+(modify-config-for-alsa)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+apt-get --quiet install -y curl wget git git-flow 
+sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/mmcse_rsa' $USS
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function write-github(){
+cat << EOF
+    mkdir $1 || exit
+    cd $1
+    git init
+    git remote add origin git@github.com:gardsted/$1.git; 
+    git config core.sshCommand "ssh -i ~/.ssh/$1_rsa -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no"
+    git pull origin development
+    git pull origin master
+    git branch development
+    git checkout development
+    python3 -m venv venv
+EOF
+
+}
+
+function instance(){
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+sudo su -l -c '($(write-github mmcse))' $USS
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+# untested
+cat /etc/asound.conf | sudo lxc-attach $CONTAINER --  "/bin/cat >> /etc/asound.conf"
+echo now ssh into container, cd mmcse and run src_setup/download.sh after putting in git-ssh-key
+}
+
+
+$CONTEXT
