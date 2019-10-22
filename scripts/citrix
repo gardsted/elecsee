@@ -1,0 +1,46 @@
+#!/bin/bash
+#export PRIVILEGED=True
+[ "${debug}" = "true" ] && set -x
+
+function hlp(){
+cat << EOF
+adds openvpn and openconnect to container
+EOF
+}
+
+function model(){
+[ "${debug}" = "true" ] && set -x
+(hlp)
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+mkdir /dev/net 
+mknod /dev/net/tun c 10 200
+chmod 666 /dev/net/tun
+apt-get -y install openvpn openconnect
+cp /usr/lib/systemd/system/openvpn-client@.service /etc/systemd/system/openvpn-client@.service
+sed -i s/LimitNPROC/#LimitNPROC/ /etc/systemd/system/openvpn-client@.service
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+}
+
+
+
+
+function instance(){
+[ "${debug}" = "true" ] && set -x
+(cat << EOF
+[ "${debug}" = "true" ] && set -x
+apt-get update
+apt-get install -y libwebkit2gtk-4.0-37 libice6 libgtk2.0-0 \
+    libsm6 libxmu6 libxpm4 libasound2 chromium-browser\
+    libcanberra-gtk-module libcanberra-gtk3-module
+apt --fix-broken --fix-missing -y install
+EOF
+) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+echo 'lxc.mount.entry = /dev/net dev/net none bind,create=dir' >> .local/share/lxc/${CONTAINER}/config
+}
+
+
+
+
+$CONTEXT
