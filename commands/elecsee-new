@@ -40,6 +40,7 @@ function new-model(){
     )
     ${ELECSEE} net ${CONTAINER}
     ${ELECSEE} hst
+    sleep 1
     ${ELECSEE} ssh ${CONTAINER}
     [ "$PRIVILEGED" = "true" ] && (
         export CONTEXT=model

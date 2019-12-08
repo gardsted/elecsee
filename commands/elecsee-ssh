@@ -20,13 +20,15 @@ function elecsee-cert(){
 }
 
 function _ssh(){
-[ -f ~/.ssh/elecsee.pub ] || (elecsee-cert)
+[ -f /home/${ME}/.ssh/elecsee.pub ] || (elecsee-cert)
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
 apt update
-apt install -y ssh openssh-server
+apt install -y ssh openssh-server sudo
 adduser $USS --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
 adduser $USO --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
+su -l -c 'mkdir ~/.ssh; chmod 700 ~/.ssh' $USS 
+su -l -c 'mkdir ~/.ssh; chmod 700 ~/.ssh' $USO 
 su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa' $USS 
 su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa' $USO
 echo $USS' ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
@@ -39,15 +41,15 @@ EOF
 ) >> ${logfile} 2>&1
 
 [ "$PRIVILEGED" = "true" ]  && (
-    cat ~/.ssh/elecsee.pub | lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USO'/.ssh/authorized_keys' 
-    cat ~/.ssh/elecsee.pub | lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USS'/.ssh/authorized_keys'
+    cat /home/${ME}/.ssh/elecsee.pub | lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USO'/.ssh/authorized_keys' 
+    cat /home/${ME}/.ssh/elecsee.pub | lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USS'/.ssh/authorized_keys'
 ) || (
-    cat ~/.ssh/elecsee.pub | sudo -u ${ME} lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USO'/.ssh/authorized_keys' 
-    cat ~/.ssh/elecsee.pub | sudo -u ${ME} lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USS'/.ssh/authorized_keys'
+    cat /home/${ME}/.ssh/elecsee.pub | sudo -u ${ME} lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USO'/.ssh/authorized_keys' 
+    cat /home/${ME}/.ssh/elecsee.pub | sudo -u ${ME} lxc-attach --name ${CONTAINER} /bin/sh -- -c '/bin/cat > /home/'$USS'/.ssh/authorized_keys'
 )
-su -l -c "ssh-keygen -f /home/${ME}/.ssh/known_hosts -R ${CONTAINER}" $ME >> ${logfile} 2>&1
-su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USS@${CONTAINER} :" $ME >> ${logfile} 2>&1
-su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USO@${CONTAINER} :" $ME >> ${logfile} 2>&1
+sudo su -l -c "ssh-keygen -f /home/${ME}/.ssh/known_hosts -R ${CONTAINER}" $ME >> ${logfile} 2>&1
+sudo su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USS@${CONTAINER} :" $ME >> ${logfile} 2>&1
+sudo su -l -c "ssh -o PasswordAuthentication=no -o CheckHostIP=no -o StrictHostKeyChecking=no $USO@${CONTAINER} :" $ME >> ${logfile} 2>&1
 
 }
 

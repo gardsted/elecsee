@@ -33,6 +33,7 @@ function instance(){
 EOF
 ) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 echo 'lxc.mount.entry = /dev/net dev/net none bind,create=dir' >> .local/share/lxc/${CONTAINER}/config
+echo 'lxc.mount.entry = /dev/net/tun dev/net/tun none bind,create=file' >> .local/share/lxc/${CONTAINER}/config
 }
 
 
