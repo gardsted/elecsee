@@ -28,6 +28,7 @@ EOF
 }
 
 function new-model(){
+    [ "${DEBUG}" = "true" ] && set -x
     export CONTAINER=${PREFIX}-model
     [ "$PRIVILEGED" = "true" ] && (
         lxc-destroy -f ${CONTAINER}
@@ -48,13 +49,14 @@ function new-model(){
         /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
     ) || (
         export CONTEXT=model
-        env sudo -Eu $ME /bin/bash -e ${ELECSEE_SCRIPTS}/base
-        env sudo -Eu $ME /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
+        env sudo -E -u ${ME} /bin/bash -e ${ELECSEE_SCRIPTS}/base
+        env sudo -E -u ${ME} /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
     )
 
 }
 
 function new-instance(){
+    [ "${DEBUG}" = "true" ] && set -x
     [ "$PRIVILEGED" = "true" ] && (
         lxc-stop --name ${PREFIX}-model
         lxc-destroy -f --name ${CONTAINER}
@@ -78,8 +80,8 @@ function new-instance(){
         lxc-start --name ${CONTAINER}
     ) || (
         export CONTEXT=instance
-        env sudo -Eu $ME /bin/bash -e ${ELECSEE_SCRIPTS}/base
-        env sudo -Eu ${ME} /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
+        env sudo -E -u ${ME} /bin/bash -e ${ELECSEE_SCRIPTS}/base
+        env sudo -E -u ${ME} /bin/bash -e ${ELECSEE_SCRIPTS}/${PREFIX}
         sudo -u ${ME} lxc-stop --name ${CONTAINER}
         sudo -u ${ME} lxc-start --name ${CONTAINER}
     )
@@ -87,6 +89,7 @@ function new-instance(){
 
 
 function new(){
+    [ "${DEBUG}" = "true" ] && set -x
     for CONTAINER in ${CONTAINERS}
     do
         export CONTEXT=

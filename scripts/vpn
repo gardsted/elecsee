@@ -1,6 +1,7 @@
 #!/bin/bash
 #export PRIVILEGED=True
 [ "${debug}" = "true" ] && set -x
+export LINUX="--dist=ubuntu --release=eoan --arch=amd64"
 
 function hlp(){
 cat << EOF
