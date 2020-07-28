@@ -16,7 +16,7 @@ apt install -y sed
 sed -i 's#http://archive.ubuntu.com/ubuntu#http://mirror.netsite.dk/ubuntu/archive/#' /etc/apt/sources.list
 apt update
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
@@ -27,7 +27,7 @@ function instance(){
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

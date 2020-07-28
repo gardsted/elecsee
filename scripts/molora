@@ -17,7 +17,7 @@ Host ${GITLAB}
     IdentitiesOnly yes
 EOF
 ) | sudo -u ${ME} lxc-attach --name ${CONTAINER} /bin/sh -- -c "/bin/cat >> /home/clint/.ssh/config" 
-ssh-keyscan ${GITLAB} | lxc-attach --name ${CONTAINER} /bin/sh -- -c "/bin/cat >> /home/clint/.ssh/known_hosts"
+ssh-keyscan ${GITLAB} | sudo -u ${ME} lxc-attach --name ${CONTAINER} /bin/sh -- -c "/bin/cat >> /home/clint/.ssh/known_hosts"
 }
 
 function autostart-lora(){
@@ -41,7 +41,7 @@ systemctl enable lora.service
 systemctl start lora.service
 systemctl status lora.service
 EOF
-) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) |  sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 function autostart-os2mo(){
@@ -59,7 +59,7 @@ ExecStart=/bin/sh -c 'exec /home/${USS}/os2mo/backend/flask.sh run -h 0.0.0.0 -p
 [Install]
 WantedBy=multi-user.target
 EOF
-) | sudo -u ${ME} lxc-attach --name ${CONTAINER} /bin/sh -- -c "/bin/cat >> /etc/systemd/system/os2mo.service" 
+) |  sudo -u ${ME} lxc-attach --name ${CONTAINER} /bin/sh -- -c "/bin/cat >> /etc/systemd/system/os2mo.service" 
 (cat << EOF
 systemctl enable os2mo.service
 systemctl start os2mo.service
@@ -126,7 +126,7 @@ EOF
 chmod 755 /home/clint/runner.sh
 chown clint:clint /home/clint/runner.sh
 EOF
-) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> \${logfile} 2>&1
+) |  sudo -u ${ME} lxc-attach --name ${CONTAINER} >> \${logfile} 2>&1
 }
 
 
@@ -144,7 +144,7 @@ sudo su -l -c 'touch ~/.ssh/config' $USS
 sudo su -l -c 'touch ~/.ssh/known_hosts' $USS
 sudo su -l -c 'chmod 600 ~/.ssh/gitlab_rsa' $USS
 EOF
-) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) |  sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 (gitsshconfig)
 }
 
@@ -169,7 +169,7 @@ su -l -c 'cd os2mo/backend && python3 -m venv venv && ./venv/bin/pip install -r 
 su -l -c 'cd os2mo/backend && ./flask.sh build;' $USS
 su -l -c 'jq '\''.LORA_URL="http://localhost:'${LORA_PORT}'/"'\'' /home/$USS/os2mo/setup/mora-example.json > /home/$USS/os2mo/setup/mora.json' $USS
 EOF
-) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) |  sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 (autostart-lora)
 (autostart-os2mo)
 (runner-script)

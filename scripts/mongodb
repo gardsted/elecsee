@@ -21,7 +21,7 @@ apt-get update -y
 apt-get install -y mongodb-org mongodb-org-server mongodb-org-mongos mongodb-org-tools
 systemctl enable mongod
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
@@ -31,7 +31,7 @@ function instance(){
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

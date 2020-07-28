@@ -19,7 +19,7 @@ cp wagon-http-2.8-shaded.jar /usr/share/maven
 sudo su -l -c 'cp db-preservation-toolkit/.travis/maven_settings.xml db-preservation-toolkit' $USS
 sudo su -l -c '(cd db-preservation-toolkit ; mvn -gs maven_settings.xml package)' $USS
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
@@ -32,7 +32,7 @@ sudo su -l -c '(cd db-preservation-toolkit ; git pull)' $USS
 sudo su -l -c '(cd db-preservation-toolkit ; mvn -gs maven_settings.xml package)' $USS
 # this will not work before updating the maven_settings with oracle username
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

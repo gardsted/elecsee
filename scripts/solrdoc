@@ -20,7 +20,7 @@ sudo gem install pygments.rb
 sudo gem install slim --force --version 3.0.9
 
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
@@ -34,7 +34,7 @@ git clone https://github.com/apache/lucene-solr/tree/master/solr/solr-ref-guide
 cd solr-ref-guide
 ant build-site
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

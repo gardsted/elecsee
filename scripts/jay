@@ -18,7 +18,7 @@ sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jayselectors_rsa' $USS
 sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaydux_rsa' $USS
 sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaywalker_rsa' $USS
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
@@ -49,7 +49,7 @@ sudo su -l -c '($(write-github solrpage))' $USS
 sudo su -l -c '($(write-github jaywalker))' $USS
 sudo su -l -c '($(write-github jaydux))' $USS
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

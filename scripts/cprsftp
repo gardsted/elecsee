@@ -28,7 +28,7 @@ done
 chown -R clint:clint /home/clint/
 usermod -a -G sudo  -a -G sftp clint
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 ( cat <<EOF
 
 #-------------- sshd setup -----------------
@@ -37,12 +37,12 @@ Match Group sftpusers
 ChrootDirectory /data/%u
 ForceCommand internal-sftp
 EOF
-) | sudo lxc-attach $CONTAINER --  "/bin/cat >> /etc/ssh/sshd_config"
+) | sudo sudo -u ${ME} lxc-attach $CONTAINER --  "/bin/cat >> /etc/ssh/sshd_config"
 (cat << EOF
 set -x
 systemctl restart sshd
 EOF
-) | sudo lxc-attach $CONTAINER
+) | sudo sudo -u ${ME} lxc-attach $CONTAINER
 
 }
 
@@ -53,7 +53,7 @@ function instance(){
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

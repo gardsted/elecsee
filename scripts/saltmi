@@ -15,7 +15,7 @@ function model(){
 wget -O - https://repo.saltstack.com/py3/ubuntu/16.04/amd64/2019.2/SALTSTACK-GPG-KEY.pub | sudo apt-key add -
 echo deb http://repo.saltstack.com/py3/ubuntu/16.04/amd64/2019.2 xenial main  >> /etc/apt/sources.list.d/saltstack.list
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
@@ -32,7 +32,7 @@ systemctl stop salt-minion
 echo ${CONTAINER}  > /etc/salt/minion_id
 sed -i 's/^#* *master: .*$/master: saltma-1/' /etc/salt/minion
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

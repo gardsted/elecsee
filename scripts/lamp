@@ -20,7 +20,7 @@ ln -s /usr/share/zoneinfo/Europe/Copenhagen /etc/localtime
 apt update
 apt-get install -y ssh curl apache2 php php-pear php-fpm php-dev php-zip php-xml libapache2-mod-php php-mysql php-curl mysql-server
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
@@ -30,7 +30,7 @@ function instance(){
 systemctl restart apache2
 echo '<?php phpinfo(); ?>' > /var/www/html/info.php
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

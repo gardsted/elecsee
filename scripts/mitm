@@ -1,18 +1,22 @@
 #!/bin/bash
 [ "${debug}" = "true" ] && set -x
 
+
+
+
 function hlp(){
 cat << EOF
-adds ruby to the model
+adds mitmproxy to the model
 EOF
 }
 
 function model(){
 [ "${debug}" = "true" ] && set -x
 (hlp)
+(. ${ELECSEE_SCRIPTS}/python)
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
-apt-get --quiet install -y ruby-full ruby-gem
+pip3 install mitmproxy
 EOF
 ) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
@@ -24,6 +28,10 @@ function instance(){
 [ "${debug}" = "true" ] && set -x
 (cat << EOF
 [ "${debug}" = "true" ] && set -x
+echo export http_proxy="http://${CONTAINER}:8080" >> /home/${USS}/proxysetup
+echo export https_proxy="https://${CONTAINER}:8080" >> /home/${USS}/proxysetup
+echo export ftp_proxy="http://${CONTAINER}:8080" >> /home/${USS}/proxysetup
+chown ${USS}:${USS} /home/${USS}/proxysetup
 
 EOF
 ) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
@@ -33,3 +41,4 @@ EOF
 
 
 $CONTEXT
+

@@ -21,7 +21,7 @@ echo debconf shared/accepted-oracle-license-v1-1 seen true | \
   debconf-set-selections
 apt-get --quiet install -y oracle-java8-installer 
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

@@ -27,7 +27,7 @@ declare -A _ARGSPEC=(
     export CMD=${1} ; shift
     export CMD=${CMD:-hlp}
     export DOWNLOAD_KEYSERVER="pgp.mit.edu"
-    export LINUX=${LINUX:-"--dist=ubuntu --release=disco --arch=amd64"}
+    export LINUX=${LINUX:-"--dist=ubuntu --release=bionic --arch=amd64"}
     export ELECSEE=$(readlink -f $0)
     export ELECSEE_COMMANDS=${ELECSEE_COMMANDS:-"$(dirname ${ELECSEE})/commands"}
     export ELECSEE_DATA=${ELECSEE_DATA:-"$(dirname ${ELECSEE})/data"}

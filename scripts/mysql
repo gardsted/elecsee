@@ -15,7 +15,7 @@ function model(){
 apt update
 apt install -y mariadb-server-10.1
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
@@ -26,7 +26,7 @@ function instance(){
 [ "${debug}" = "true" ] && set -x
 sed 's/\(bind-address[[:space:]]*=\).*/\1 0.0.0.0/g' -i /etc/mysql/mariadb.conf.d/50-server.cnf 
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

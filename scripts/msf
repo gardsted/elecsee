@@ -14,7 +14,7 @@ curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/t
   chmod 755 msfinstall &&  bash -x ./msfinstall
   msfupdate
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
@@ -26,7 +26,7 @@ echo initialize metasploit
 [ "${debug}" = "true" ] && set -x
 su -l -c'/opt/metasploit-framework/bin/msfdb init' $USS
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

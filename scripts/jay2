@@ -25,7 +25,7 @@ sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jayprxy_rsa' $USS
 sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaysqla_rsa' $USS
 sudo su -l -c 'ssh-keygen -b 2048 -t rsa -f ~/.ssh/jaymaga_rsa' $USS
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
@@ -64,7 +64,7 @@ sudo su -l -c '($(write-github jayprxy))' $USS
 sudo su -l -c '($(write-github jaysqla))' $USS
 sudo su -l -c '($(write-github jaymaga))' $USS
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

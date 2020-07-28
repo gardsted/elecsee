@@ -14,7 +14,7 @@ function model(){
 apt-get update
 apt-get install -y postgresql postgresql-contrib
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
@@ -31,7 +31,7 @@ sed -i  '/#listen_addresses/alisten_addresses = '\\'*\\' \${PG_CONF}
 su -c 'psql -c"create user ${USS};"' postgres
 su -c 'psql -c"create database ${USS} with owner ${USS};"' postgres
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 

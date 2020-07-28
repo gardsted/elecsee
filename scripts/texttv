@@ -18,7 +18,7 @@ apt install -y git git-flow
 su -l -c 'git clone -b development https://github.com/gardsted/texttv' $USS
 su -l -c 'cd texttv && python3 -m venv venv && venv/bin/pip install -r requirements.txt' $USS
 EOF
-) | lxc-attach --name ${CONTAINER}
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER}
 }
 
 
@@ -31,7 +31,7 @@ su -l -c 'cd texttv && git pull && venv/bin/pip install -r requirements.txt --up
 su -l -c 'curl https://raw.githubusercontent.com/fabricjs/fabric.js/master/dist/fabric.js -o texttv/texttv/static/fabric.js' $USS
 su -l -c 'curl https://ajax.googleapis.com/ajax/libs/angularjs/1.7.5/angular.js -o texttv/texttv/static/angular.js' $USS
 EOF
-) | lxc-attach --name ${CONTAINER}
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER}
 
 }
 

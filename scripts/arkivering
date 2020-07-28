@@ -17,7 +17,7 @@ function model(){
 [ "${debug}" = "true" ] && set -x
 :
 EOF
-) | lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
+) | sudo -u ${ME} lxc-attach --name ${CONTAINER} >> ${logfile} 2>&1
 }
 
 
