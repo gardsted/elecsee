@@ -1,3 +1,6 @@
+Elecsee is no longer maintained after lxc has become hard to run without lxd and lxd has gone snap-only.
+
+
 # ELECSEE
 
 This is the documentation of elecsee, a utility for easing my use of lxc on ubuntu.
